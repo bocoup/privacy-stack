@@ -39,12 +39,16 @@ export async function createUser(
   password: string,
   doNotSell: boolean,
 ) {
+  const newToken = randomBytes(16).toString("hex");
+  const hashedNewToken = sha256(newToken);
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   return prisma.user.create({
     data: {
       email,
       doNotSell,
+      token: hashedNewToken,
       password: {
         create: {
           hash: hashedPassword,
@@ -120,6 +124,7 @@ export async function verifyEmail({
       },
       data: {
         emailVerified: true,
+        token: "",
       },
     });
   }
