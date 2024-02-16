@@ -1,0 +1,12 @@
+.DS_Store
+node_modules
+
+/build
+/public/build
+/public/media
+.env
+
+/cypress/screenshots
+/cypress/videos
+/prisma/data.db
+/prisma/data.db-journal

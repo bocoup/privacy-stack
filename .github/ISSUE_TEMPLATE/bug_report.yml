@@ -1,0 +1,36 @@
+name: Bug Report
+description: Something is wrong with the app.
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Thank you for helping to improve Notes App! Please include a screenshot
+  - type: input
+    attributes:
+      label: Have you experienced this bug with the latest version of the app?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual Behavior
+      description: A description of what you're experiencing.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Browser and operating system?
+      description: What browser and operating systems and versions did you experience this on?
+    validations:
+      required: true
