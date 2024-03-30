@@ -78,7 +78,6 @@ const updatePackageJson = ({ APP_NAME, packageJson, packageManager }) => {
       ...scripts
     },
   } = packageJson.content;
-  scripts.deploy = scripts.deploy.replace(REPLACER, APP_NAME);
 
   packageJson.update({
     name: APP_NAME,
@@ -103,6 +102,12 @@ const main = async ({ packageManager, rootDirectory }) => {
   const README_PATH = path.join(rootDirectory, "README.md");
   const EXAMPLE_ENV_PATH = path.join(rootDirectory, ".env.example");
   const ENV_PATH = path.join(rootDirectory, ".env");
+  const EXAMPLE_INVENTORY_PATH = path.join(
+    rootDirectory,
+    "inventory.example.yml",
+  );
+  const INVENTORY_PATH = path.join(rootDirectory, "inventory.yml");
+
   const CYPRESS_SUPPORT_PATH = path.join(rootDirectory, "cypress", "support");
   const CYPRESS_COMMANDS_PATH = path.join(CYPRESS_SUPPORT_PATH, "commands.ts");
   const CREATE_USER_COMMAND_PATH = path.join(
@@ -113,7 +118,6 @@ const main = async ({ packageManager, rootDirectory }) => {
     CYPRESS_SUPPORT_PATH,
     "delete-user.ts",
   );
-
   const DIR_NAME = path.basename(rootDirectory);
   const SUFFIX = getRandomString(2);
 
@@ -124,6 +128,7 @@ const main = async ({ packageManager, rootDirectory }) => {
   const [
     readme,
     env,
+    inventory,
     cypressCommands,
     createUserCommand,
     deleteUserCommand,
@@ -131,6 +136,7 @@ const main = async ({ packageManager, rootDirectory }) => {
   ] = await Promise.all([
     fs.readFile(README_PATH, "utf-8"),
     fs.readFile(EXAMPLE_ENV_PATH, "utf-8"),
+    fs.readFile(EXAMPLE_INVENTORY_PATH, "utf-8"),
     fs.readFile(CYPRESS_COMMANDS_PATH, "utf-8"),
     fs.readFile(CREATE_USER_COMMAND_PATH, "utf-8"),
     fs.readFile(DELETE_USER_COMMAND_PATH, "utf-8"),
@@ -157,11 +163,15 @@ const main = async ({ packageManager, rootDirectory }) => {
     .replace(REPLACER, APP_NAME)
     .replace(initInstructions, "");
 
+  const newInventory = inventory.replace(REPLACER, APP_NAME);
+
   updatePackageJson({ APP_NAME, packageJson, packageManager: pm });
 
   await Promise.all([
     fs.writeFile(README_PATH, newReadme),
     fs.writeFile(ENV_PATH, newEnv),
+    fs.writeFile(INVENTORY_PATH, newInventory),
+
     ...cleanupCypressFiles({
       fileEntries: [
         [CYPRESS_COMMANDS_PATH, cypressCommands],
