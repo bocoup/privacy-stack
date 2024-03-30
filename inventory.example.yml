@@ -1,0 +1,28 @@
+Production:
+  hosts: 64.23.146.78
+  vars:
+    domain: example.com # used for your app's domain name
+    email: you@example.com # used for your certbot email, note you'll be agreeing to the ToS.
+    nodejs_version: 20 # pick your node version
+    ansible_ssh_pass: "secret" # if you have an SSH key on your server for the root user, you don't need this
+    deploy_files: # list of files and folders to copy to the server on deploy
+      - src: ../prisma/migrations
+        dest: /home/{{ domain }}/prisma/
+      - src: ../prisma/schema.prisma
+        dest: /home/{{ domain }}/prisma/schema.prisma
+      - src: ../build/
+        dest: /home/{{ domain }}/build
+      - src: ../public/
+        dest: /home/{{ domain }}/public
+      - src: ../.env
+        dest: /home/{{ domain }}/
+      - src: ../.npmrc
+        dest: /home/{{ domain }}/
+      - src: ../package.json
+        dest: /home/{{ domain }}/
+      - src: ../package-lock.json
+        dest: /home/{{ domain }}/
+      - src: ../LICENSE.md
+        dest: /home/{{ domain }}/
+      - src: ../README.md
+        dest: /home/{{ domain }}/

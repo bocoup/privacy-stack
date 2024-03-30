@@ -1,6 +1,6 @@
 # privacy-stack-template
 
-This is stack is based on the [Remix Indie Stack](https://github.com/remix-run/indie-stack), with a additions the center data privacy, add some UI components for buttons and pills, and create a mobile design using headless ui and tailwind. Read more about [Remix Stacks](https://remix.run/stacks) to get started.
+This is stack is based on the [Remix Indie Stack](https://github.com/remix-run/indie-stack), with a additions the center data privacy, add some UI components for buttons and pills, and create a mobile design using headless ui and tailwind. This stack depends on a file system for sqlite and file upload, and on node for crypto functions. Read more about [Remix Stacks](https://remix.run/stacks) to get started.
 
 Or run `npx create-remix@latest --template https://github.com/bocoup/privacy-stack.git`
 
@@ -9,15 +9,14 @@ Or run `npx create-remix@latest --template https://github.com/bocoup/privacy-sta
 - Production-ready [SQLite Database](https://sqlite.org)
 - [GitHub Actions](https://github.com/features/actions) for linting, typechecking, and smoke testing on merge to production and staging environments
 - Email/Password Authentication with [cookie-based sessions](https://remix.run/utils/sessions#md-createcookiesessionstorage)
-- Transactional emails, including forgot password and delete my data, with [Sendgrid](https://sendgrid.com/)
+- Transactional emails with secure tokens, including forgot password and delete my data, with [Sendgrid](https://sendgrid.com/)
 - [GDPR](https://gdpr.eu/what-is-gdpr/) and [CCPA](https://www.oag.ca.gov/privacy/ccpa) compliance with do not sell, data access, and data deletion flows
   - Default do not sell on signup
   - See what data is stored about me
   - Delete most of my data
   - Delete all of my data
   - Undo sign up
-- Instructions for setting up a long-running node server with [Nginx](https://nginx.org/en/) proxy server, [UFW](https://help.ubuntu.com/community/UFW) firewall, [Certbot](https://certbot.eff.org/) for SSL, and [systemd](https://en.wikipedia.org/wiki/Systemd) for node daemonization
-- Deploy script with [rsync](https://en.wikipedia.org/wiki/Rsync)
+- Automated provisioning and deployments to a DIY VPS with Ansible: long-running node server with [Nginx](https://nginx.org/en/) proxy server, [UFW](https://help.ubuntu.com/community/UFW) firewall, [Certbot](https://certbot.eff.org/) for SSL, and [systemd](https://en.wikipedia.org/wiki/Systemd) for node daemonization
 - Database ORM with [Prisma](https://prisma.io)
 - Styling with [Tailwind](https://tailwindcss.com/)
 - End-to-end testing with [Cypress](https://cypress.io)
@@ -89,136 +88,37 @@ This project uses ESLint for linting. That is configured in `.eslintrc.js`.
 
 We use [Prettier](https://prettier.io/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `npm run format` script you can run to format all files in the project.
 
-### Deployment
+## Deployment
 
-Ask your administrator to put your public key on the server and then you can:
+This project includes a diy deployment workflow from the [bocoup/deploy](https://github.com/bocoup/deploy) repo. Follow the instructions in this repo's copy of `deploy/README.md`. It will guide you through the process of:
 
-- Deploy
+1. Creating or catting your SSH keys
+2. Getting a server
+3. Installing Ansible locally on your computer
 
-  ```sh
-  npm run deploy
-  ```
+Once you follow those steps, you can switch back here. You'll need to do four more things:
 
-### Set up the server from scratch
+4. Update `inventory.yml` in the root of this repository with values that match your server.
+5. Lock down the server
 
-Deploy this project to a server. Try a droplet on [digital ocean](https://digitalocean.com/). Something with 1gb of memory should be enough to start you off. Point a domain at that droplet, and replace `privacy-stack-template.com` with that domain in the following instructions. An IP address will work as well.
-
-- [Connecting](#connecting)
-- [Install Printer Dependancies](#install-printer-dependancies)
-- [Install and enable ufw](#once-youre-in-add-a-new-user)
-- [install nginx, and enable in firewall](#install-nginx-and-enable-in-firewall)
-- [configure nginx](#configure-nginx)
-- [install certbot and setup ssl](#install-certbot-and-setup-ssl)
-- [install node](#install-node)
-- [create destination](#create-destination)
-- [deploy project](#deploy-project)
-- [Install dependancies and start](#install-dependancies-and-start)
-- [Daemonize and start](#daemonize-and-start)
-
-#### Connecting:
-
-- `ssh privacy-stack-template.com`
-
-#### Install and enable ufw:
-
-- `sudo apt update`
-- `sudo apt install ufw`
-- `sudo ufw allow OpenSSH`
-- `sudo ufw enable`
-
-#### install nginx, and enable in firewall
-
-- `sudo apt remove apache2`
-- `sudo apt install nginx`
-- `sudo ufw allow 'Nginx Full'`
-- `sudo ufw status`
-
-#### configure nginx
-
-- `sudo apt install vim`
-- `sudo vim /etc/nginx/sites-available/privacy-stack-template.com`
-
-and add this config to your nginx.
-
-```
-server {
-    listen 80;
-    listen [::]:80;
-    server_name privacy-stack-template.com;
-    access_log /var/log/nginx/privacy-stack-template.com.log;
-    error_log  /var/log/nginx/privacy-stack-template.com-error.log error;
-
-    location / {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header Host $http_host;
-        proxy_pass http://127.0.0.1:3000;
-        proxy_redirect off;
-        client_max_body_size 10M;
-    }
-}
+```sh
+npm run lockdown
 ```
 
-- `sudo ln -s /etc/nginx/sites-available/privacy-stack-template.com /etc/nginx/sites-enabled`
+6. Provision the server
 
-#### install certbot and setup ssl
-
-- `sudo apt install python3-certbot-nginx`
-- `sudo certbot --nginx -d privacy-stack-template.com`
-- `sudo systemctl restart nginx`
-- `sudo systemctl enable nginx`
-
-#### install node
-
-- `sudo apt-get install -y ca-certificates curl gnupg`
-- `sudo mkdir -p /etc/apt/keyrings`
-- `curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg`
-- `sudo apt-get update`
-- `sudo apt-get install nodejs -y`
-- `sudo apt-get install npm`
-- `node --version`
-
-#### Daemonize and start
-
-- `sudo vim /lib/systemd/system/privacy-stack-template.service` and paste in
-
-```
-[Unit]
-Description=privacy-stack-template
-Documentation=https://github.com/bocoup/privacy-stack-template
-After=network.target
-
-[Service]
-Environment=NODE_ENV=production
-Type=simple
-User=root
-WorkingDirectory=/home/privacy-stack-template.com
-ExecStart=/usr/bin/npm start
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
+```sh
+npm run provision
 ```
 
-#### deploy project
+7. Deploy the project
 
-- `sudo mkdir /home/privacy-stack-template.com`
+```sh
+npm run deploy
+```
 
-##### back on your local machine:
+Once you've completed this step, you can run `npm run deploy` anytime you'd like to deploy
 
-- `npm run deploy`
+## GitHub Actions
 
-#### Install dependancies and migrate database
-
-back on the remote server
-
-- `cd /home/privacy-stack-template.com`
-- `npm install`
-- `npx prisma generate && npx prisma db push && npx prisma db seed`
-
-#### start
-
-- `sudo systemctl daemon-reload`
-- `sudo systemctl enable --now privacy-stack-template`
-- `sudo systemctl start privacy-stack-template`
+We use GitHub Actions for continuous integration and deployment. Anything that gets into the main branch will be deployed to production after running tests/build/etc.

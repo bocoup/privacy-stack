@@ -1,5 +1,6 @@
 .DS_Store
 node_modules
+inventory.yml
 
 /build
 /public/build
@@ -10,3 +11,4 @@ node_modules
 /cypress/videos
 /prisma/data.db
 /prisma/data.db-journal
+

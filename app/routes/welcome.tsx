@@ -1,6 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
-import { ActionFunctionArgs, redirect } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
 import { Form, Link } from "@remix-run/react";
 import { Fragment, useState } from "react";
 
@@ -8,6 +12,11 @@ import Button from "~/components/Button";
 import ButtonLink from "~/components/ButtonLink";
 import { deleteUserById } from "~/models/user.server";
 import { requireUserId } from "~/session.server";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  await requireUserId(request);
+  return {};
+};
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);

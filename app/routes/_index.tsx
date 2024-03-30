@@ -10,7 +10,7 @@ export default function Index() {
   const user = useOptionalUser();
   return (
     <div className="py-32 sm:py-48 lg:py-56 space-y-4">
-      <h1 className="font-bold text-6xl text-center">Notes App</h1>
+      <h1 className="font-bold text-6xl text-center">Notes App!</h1>
       <p className="text-xl text-center">A privacy first notes app.</p>
       {user ? (
         <div className="flex flex-col gap-4">

@@ -17,7 +17,9 @@
     "test:e2e:run": "cross-env PORT=8811 start-server-and-test start:mocks http://localhost:8811 \"npx cypress run\"",
     "typecheck": "tsc && tsc -p cypress",
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run",
-    "deploy": "npm run build && rsync -rlDv --exclude='node_modules/***'  --exclude='.gitignore' --exclude='.DS_Store' --exclude='.git/***' --exclude='.github/***' --exclude='prisma/data.db' --exclude='public/media' ./ $USER@privacy-stack-template.com:/home/privacy-stack-template.com && ssh $USER@privacy-stack-template.com 'cd /home/privacy-stack-template.com && npm install && sudo -S systemctl restart privacy-stack-template'"
+    "lockdown": "export ANSIBLE_HOST_KEY_CHECKING=false && ansible-playbook -i inventory.yml deploy/lockdown.yml",
+    "provision": "ansible-playbook -i inventory.yml deploy/provision.yml",
+    "deploy": "npm run build && ansible-playbook -i inventory.yml deploy/deploy.yml"
   },
   "prettier": {},
   "eslintIgnore": [
