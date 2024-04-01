@@ -1,0 +1,93 @@
+import type { MetaFunction } from "@remix-run/node";
+
+import BrowserMockup from "~/components/BrowserMockup";
+import {
+  NavigationSite,
+  NavigationSiteFooter,
+} from "~/components/NavigationSite";
+
+export const meta: MetaFunction = () => [
+  { title: "Learn How To Use Roberts App" },
+];
+
+export default function Index() {
+  return (
+    <div>
+      <NavigationSite />
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 lg:py-24">
+        <div className="text-center py-24 sm:py-32">
+          <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+            How to use
+          </h2>
+          <p className="mt-6 text-lg leading-8 text-gray-600">
+            Watch video tutorials about how to use the features in Robert&apos;s
+            App.
+          </p>
+        </div>
+        <ol className="space-y-20 lg:space-y-52 py-10">
+          <li className="block space-y-4 md:space-y-0 md:flex gap-10">
+            <div className="md:w-1/2">
+              <h2 className="inline font-semibold text-gray-900">
+                1) Sign Up With Your Family
+              </h2>
+              <p>Invite your child and other adults to Robert’s App.</p>
+            </div>
+            <BrowserMockup>
+              <video
+                playsInline
+                controls
+                className="w-full object-contain rounded-b-md"
+              >
+                <source src="/video/tutorial/1-sign-up.mp4" type="video/mp4" />
+              </video>
+            </BrowserMockup>
+          </li>
+          <li className="block space-y-4 md:space-y-0 md:flex md:flex-row-reverse gap-10">
+            <div className="md:w-1/2">
+              <h2 className="inline font-semibold text-gray-900">
+                2) Parent Portal
+              </h2>
+              <p>Build and customize your child’s unique platform .</p>
+            </div>
+            <BrowserMockup>
+              <video
+                playsInline
+                controls
+                className="w-full object-contain rounded-b-md"
+              >
+                <source
+                  src="/video/tutorial/2-parent-portal-video.mp4"
+                  type="video/mp4"
+                />
+              </video>
+            </BrowserMockup>
+          </li>
+          <li className="block space-y-4 md:space-y-0 md:flex gap-10">
+            <div className="md:w-1/2">
+              <h2 className="inline font-semibold text-gray-900">
+                3) Setting Up Robert’s App On Your Child’s Phone
+              </h2>
+              <p>
+                Log into Robert’s App on your child’s phone (Apple, Android or
+                other device).
+              </p>
+            </div>
+            <BrowserMockup>
+              <video
+                playsInline
+                controls
+                className="w-full object-contain rounded-b-md"
+              >
+                <source
+                  type="video/mp4"
+                  src="/video/tutorial/3-setting-up-your-childs-phone.mp4"
+                />
+              </video>
+            </BrowserMockup>
+          </li>
+        </ol>
+        <NavigationSiteFooter />
+      </div>
+    </div>
+  );
+}

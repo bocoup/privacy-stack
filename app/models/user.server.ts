@@ -124,7 +124,7 @@ export async function verifyEmail({
       },
       data: {
         emailVerified: true,
-        token: "",
+        token: undefined,
       },
     });
   }
@@ -146,6 +146,30 @@ export async function newToken({ userId }: { userId: string }) {
   return user;
 }
 
+export async function updateProfile({
+  id,
+  doNotSell,
+  visualAvatar,
+  visualAvatarDescription,
+}: {
+  id: string;
+  email: string;
+  doNotSell: boolean;
+  visualAvatar: string | undefined;
+  visualAvatarDescription: string | undefined;
+}) {
+  return await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      doNotSell,
+      visualAvatar,
+      visualAvatarDescription,
+    },
+  });
+}
+
 export async function getUserByToken(token: string | undefined) {
   return await prisma.user.findUnique({ where: { token: token } });
 }
@@ -158,7 +182,7 @@ export async function resetPassword(token: string, password: string) {
       token: token,
     },
     data: {
-      token: "",
+      token: undefined,
     },
   });
 

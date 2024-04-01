@@ -16,9 +16,11 @@ import {
 import { useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 
-import Button from "~/components/Button";
+import ImageUpload from "~/components/image-upload";
+import { Button } from "~/components/ui/button";
 import { createNote, getNote, updateNote } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
+import { timeFromNow } from "~/utils";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   await requireUserId(request);
@@ -38,7 +40,6 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
   const formData = await request.clone().formData();
   const name = formData.get("name")?.toString();
   const body = formData.get("body")?.toString();
-  const color = formData.get("color")?.toString() || undefined;
   const imageDescription =
     formData.get("imageDescription")?.toString() || undefined;
 
@@ -82,13 +83,11 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
   invariant(params.noteId, "noteId required");
   invariant(name, "name required");
-  invariant(color, "color required");
 
   const data = {
     id: params.noteId,
     name,
     body,
-    color,
     image:
       imageFormField instanceof File && imageFormField.size > 0
         ? `/media/${userId}/${imageFormField.name}`
@@ -103,7 +102,7 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     await updateNote(data);
   }
 
-  return redirect(`/notes`);
+  return redirect(`/app/dashboard/notes`);
 };
 
 export default function NoteEditPage() {
@@ -111,8 +110,6 @@ export default function NoteEditPage() {
   const fetcher = useFetcher<typeof action>();
   const nameRef = useRef<HTMLInputElement>(null);
   const imageDescriptionRef = useRef<HTMLInputElement>(null);
-  const createdAt = data.note ? new Date(data.note.createdAt) : new Date();
-  const updatedAt = data.note ? new Date(data.note.updatedAt) : new Date();
 
   useEffect(() => {
     if (fetcher.data?.errors?.name) {
@@ -128,49 +125,31 @@ export default function NoteEditPage() {
       encType="multipart/form-data"
       className="space-y-4 h-full p-4"
     >
-      <h2 className="font-bold text-xl mb-8 flex">
-        {data.note?.image ? (
-          <img
-            alt={data.note.imageDescription || ""}
-            src={data.note.image}
-            className="rounded w-10 h-10"
-          />
-        ) : null}
-
-        {data.note ? `Edit ${data.note.name}` : "New note"}
-      </h2>
       <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Name: </span>
-          <input
-            ref={nameRef}
-            defaultValue={data.note ? data.note.name : ""}
-            name="name"
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-            aria-invalid={fetcher.data?.errors?.name ? true : undefined}
-            aria-errormessage={
-              fetcher.data?.errors?.name ? "name-error" : undefined
-            }
-          />
-        </label>
+        <h2 className="font-bold text-xl flex">
+          {data.note?.image ? (
+            <img
+              alt={data.note.imageDescription || ""}
+              src={data.note.image}
+              className="rounded w-10 h-10"
+            />
+          ) : null}
 
-        {fetcher?.data?.errors?.name ? (
-          <div className="pt-1 text-red-700" id="name-error">
-            {fetcher.data?.errors?.name}
-          </div>
+          {data.note ? `Edit ${data.note.name}` : "New note"}
+        </h2>
+        {data.note ? (
+          <p className="text-sm text-slate-500">
+            Created {timeFromNow(data.note?.createdAt)} and last updated{" "}
+            {timeFromNow(data.note?.updatedAt)}
+          </p>
         ) : null}
       </div>
 
       <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Body: </span>
-          <textarea
-            defaultValue={data.note && data.note.body ? data.note.body : ""}
-            name="body"
-            rows={8}
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-          />
-        </label>
+        <ImageUpload
+          image={data.note?.image || ""}
+          imageDescription={data.note?.imageDescription || ""}
+        />
       </div>
 
       <div>
@@ -203,55 +182,34 @@ export default function NoteEditPage() {
 
       <div>
         <label className="flex w-full flex-col gap-1">
-          <span>
-            {data.note && data.note.image ? "Replace Image" : "Image"}:{" "}
-          </span>
+          <span>Name: </span>
           <input
-            type="file"
-            name="image"
-            className="
-              text-sm text-stone-500
-              file:rounded-md
-              file:bg-white
-              file:px-2.5
-              file:py-1.5
-              file:text-sm
-              file:font-semibold
-              file:text-gray-900
-              file:shadow-sm
-              file:ring-1
-              file:ring-inset
-              file:ring-gray-300
-              file:hover:bg-gray-50
-              file:border-[0px]"
-          />{" "}
+            ref={nameRef}
+            defaultValue={data.note ? data.note.name : ""}
+            name="name"
+            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
+            aria-invalid={fetcher.data?.errors?.name ? true : undefined}
+            aria-errormessage={
+              fetcher.data?.errors?.name ? "name-error" : undefined
+            }
+          />
         </label>
+
+        {fetcher?.data?.errors?.name ? (
+          <div className="pt-1 text-red-700" id="name-error">
+            {fetcher.data?.errors?.name}
+          </div>
+        ) : null}
       </div>
-      {data.note ? (
-        <>
-          <p>
-            <b className="font-bold">Date created</b>:{" "}
-            <>
-              {createdAt.toLocaleDateString()} at{" "}
-              {createdAt.toLocaleTimeString()}
-            </>
-          </p>
-          <p>
-            <b className="font-bold">Last Updated</b>:{" "}
-            <>
-              {updatedAt.toLocaleDateString()} at{" "}
-              {updatedAt.toLocaleTimeString()}
-            </>
-          </p>
-        </>
-      ) : null}
+
       <div>
-        <label>
-          <b className="font-bold">Color</b>:{" "}
-          <input
-            type="color"
-            name="color"
-            defaultValue={data.note && data.note.color ? data.note.color : ""}
+        <label className="flex w-full flex-col gap-1">
+          <span>Body: </span>
+          <textarea
+            defaultValue={data.note && data.note.body ? data.note.body : ""}
+            name="body"
+            rows={8}
+            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
           />
         </label>
       </div>

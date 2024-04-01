@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 
-import Button from "~/components/Button";
+import { Button } from "~/components/ui/button";
 import { sendMail } from "~/email.server";
 import { verifyEmail } from "~/models/user.server";
 import { requireUser, requireUserId } from "~/session.server";

@@ -8,8 +8,7 @@ import {
 import { Form, Link } from "@remix-run/react";
 import { Fragment, useState } from "react";
 
-import Button from "~/components/Button";
-import ButtonLink from "~/components/ButtonLink";
+import { Button } from "~/components/ui/button";
 import { deleteUserById } from "~/models/user.server";
 import { requireUserId } from "~/session.server";
 
@@ -28,15 +27,15 @@ export default function Welcome() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="py-32 sm:py-48 lg:py-56 space-y-4">
+    <div className="py-32 sm:py-48 lg:py-56 space-y-4 p-4">
       <div className="flex flex-col gap-4">
         <p>
           You just signed up for this App. Start by sharing creating a note, or
           adding a favorite action.
         </p>
-        <ButtonLink to="/note/edit/new" className="w-full bg-emerald-800">
-          Create a note
-        </ButtonLink>
+        <Button asChild className="w-full">
+          <Link to="/app/dashboard/note/edit/new">Create a note</Link>
+        </Button>
 
         <p>
           If you changed your mind and would like to undo your sign up, you can!
@@ -44,7 +43,7 @@ export default function Welcome() {
           all data about you from our system.
         </p>
         <Button
-          className="w-full bg-amber-600"
+          className="w-full bg-yellow-500"
           onClick={() => {
             setOpen(true);
           }}

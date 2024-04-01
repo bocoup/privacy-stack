@@ -9,8 +9,9 @@ import {
 } from "@remix-run/react";
 import { Fragment, useRef, useState } from "react";
 
-import Button from "~/components/Button";
-import Pill from "~/components/Pill";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 import { deleteMostData } from "~/models/note.server";
 import { deleteUserById } from "~/models/user.server";
 import { requireUserId } from "~/session.server";
@@ -91,9 +92,8 @@ export default function DataPage() {
         developers of this App to check in from time to time about what data is
         being stored, and weather or not to keep it.
       </p>
-      <h2 className="font-bold text-lg">The data this App has about you</h2>
-
-      <div className="mt-6 border-t border-gray-100">
+      <Card className="mt-6 border-t border-gray-100 p-4">
+        <h2 className="font-bold text-lg">The data this App has about you</h2>
         <dl className="divide-y divide-gray-100">
           <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt className="text-sm font-medium leading-6 text-gray-900">
@@ -116,10 +116,10 @@ export default function DataPage() {
               Favorites
             </dt>
             <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-              You have <Pill>{user.notes.length} notes</Pill>
+              You have <Badge>{user.notes.length} notes</Badge>{" "}
               {user.notes.length ? (
                 <>
-                  , which you can see on your{" "}
+                  which you can see on your{" "}
                   <Link to="/" className="underline">
                     home page
                   </Link>
@@ -129,10 +129,9 @@ export default function DataPage() {
             </dd>
           </div>
         </dl>
-      </div>
-
+      </Card>
       <h3 className="font-bold text-lg">Deleting your data</h3>
-      <div>
+      <Card className="p-4">
         <h4 className="font-bold text-md">Deleting most of your data</h4>
         {user.notes.length || user.notes.length ? (
           <div>
@@ -159,8 +158,8 @@ export default function DataPage() {
             here after you have used the app some more.
           </p>
         )}
-      </div>
-      <div>
+      </Card>
+      <Card className="p-4">
         <h4 className="font-bold text-md">Deleting all of your data</h4>
         <p className="mb-4">
           If you would like to delete your account entirely, including the above
@@ -177,7 +176,7 @@ export default function DataPage() {
         >
           Delete Account
         </Button>
-      </div>
+      </Card>{" "}
       <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={setOpen}>
           <Transition.Child

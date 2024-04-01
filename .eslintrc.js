@@ -27,6 +27,7 @@ module.exports = {
     // React
     {
       files: ["**/*.{js,jsx,ts,tsx}"],
+      excludedFiles: ["./app/components/ui/*"],
       plugins: ["react", "jsx-a11y"],
       extends: [
         "plugin:react/recommended",

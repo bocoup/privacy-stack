@@ -1,15 +1,17 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
+  Link,
   isRouteErrorResponse,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import ButtonLink from "~/components/ButtonLink";
+import { Button } from "~/components/ui/button";
 import { getNote } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
+import { timeFromNow } from "~/utils";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   await requireUserId(request);
@@ -26,16 +28,11 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
 export default function NoteEditPage() {
   const data = useLoaderData<typeof loader>();
-  const createdAt = data.note ? new Date(data.note.createdAt) : new Date();
-  const updatedAt = data.note ? new Date(data.note.updatedAt) : new Date();
 
   return (
-    <div className="space-y-4 h-full p-4">
-      <h2 className="font-bold text-xl flex items-center">
-        <span
-          className="rounded-full w-10 h-10 relative block mr-4"
-          style={{ background: data.note?.color || "" }}
-        >
+    <div className="space-y-4 p-4">
+      <div className="flex items-center">
+        <span className="rounded-full w-10 h-10 relative block mr-4 bg-slate-300">
           {data.note?.image ? (
             <img
               alt={data.note.imageDescription || ""}
@@ -44,25 +41,21 @@ export default function NoteEditPage() {
             />
           ) : null}
         </span>
-
-        {data.note ? `${data.note.name}` : "New note"}
-      </h2>
-
-      {data.note ? (
-        <>
-          <p className="text-xs">
-            Created on {createdAt.toLocaleDateString()} at{" "}
-            {createdAt.toLocaleTimeString()}
-          </p>
-          <p className="text-xs">
-            Updated on {updatedAt.toLocaleDateString()} at{" "}
-            {updatedAt.toLocaleTimeString()}
-          </p>
-          <p>{data.note?.body}</p>
-        </>
-      ) : null}
-
-      <ButtonLink to={`/note/edit/${data.note?.id}`}>Edit</ButtonLink>
+        <h2 className="font-bold text-xl  space-y-1 ">
+          {data.note ? `${data.note.name}` : "New note"}
+          {data.note ? (
+            <>
+              <p className="text-xs font-light text-slate-500">
+                Created {timeFromNow(data.note.createdAt)}
+              </p>
+            </>
+          ) : null}
+        </h2>
+      </div>
+      <p>{data.note?.body}</p>
+      <Button asChild>
+        <Link to={`/app/dashboard/note/edit/${data.note?.id}`}>Edit</Link>
+      </Button>
     </div>
   );
 }

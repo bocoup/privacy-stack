@@ -1,5 +1,8 @@
 import { useMatches } from "@remix-run/react";
+import { type ClassValue, clsx } from "clsx";
+import { Home, Notebook } from "lucide-react";
 import { useMemo } from "react";
+import { twMerge } from "tailwind-merge";
 
 import type { UserWithRelations } from "~/models/user.server";
 
@@ -109,4 +112,69 @@ export interface SelectionTypeEntity {
   color: string;
   image: string | undefined;
   imageDescription: string | undefined;
+}
+
+const WEEK_IN_MILLIS = 6.048e8,
+  DAY_IN_MILLIS = 8.64e7,
+  HOUR_IN_MILLIS = 3.6e6,
+  MIN_IN_MILLIS = 6e4,
+  SEC_IN_MILLIS = 1e3;
+
+export const timeFromNow = (date: string) => {
+  const formatter = new Intl.RelativeTimeFormat("en", { style: "long" });
+
+  const millis = new Date(date).getTime();
+  const diff = millis - new Date().getTime();
+  if (Math.abs(diff) > WEEK_IN_MILLIS)
+    return formatter.format(Math.trunc(diff / WEEK_IN_MILLIS), "week");
+  else if (Math.abs(diff) > DAY_IN_MILLIS)
+    return formatter.format(Math.trunc(diff / DAY_IN_MILLIS), "day");
+  else if (Math.abs(diff) > HOUR_IN_MILLIS)
+    return formatter.format(
+      Math.trunc((diff % DAY_IN_MILLIS) / HOUR_IN_MILLIS),
+      "hour",
+    );
+  else if (Math.abs(diff) > MIN_IN_MILLIS)
+    return formatter.format(
+      Math.trunc((diff % HOUR_IN_MILLIS) / MIN_IN_MILLIS),
+      "minute",
+    );
+  else
+    return formatter.format(
+      Math.trunc((diff % MIN_IN_MILLIS) / SEC_IN_MILLIS),
+      "second",
+    );
+};
+
+export function isDark(color: string) {
+  const hexColor = +(
+    "0x" + color.slice(1).replace((color.length < 5 && /./g) || "", "$&$&")
+  );
+  const r = hexColor >> 16;
+  const g = (hexColor >> 8) & 255;
+  const b = hexColor & 255;
+  const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+  if (hsp > 127.5) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+export const dashboardNavigation = [
+  { label: "Dashboard", to: "/app/dashboard", icon: Home },
+  { label: "Notes", to: "/app/dashboard/notes", icon: Notebook },
+];
+export const settingsNavigation = [
+  { label: "Profile", to: "/app/settings/profile" },
+  { label: "Data", to: "/app/settings/data" },
+];
+
+export const staticNavigation = [
+  { label: "Privacy", to: "/privacy" },
+  { label: "About", to: "/about" },
+];
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }

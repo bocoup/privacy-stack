@@ -8,14 +8,14 @@ import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 
-import Button from "~/components/Button";
+import { Button } from "~/components/ui/button";
 import { getUserByToken, resetPassword } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const loggedInUser = await getUserId(request);
   if (loggedInUser) {
-    return redirect("/notes");
+    return redirect("/app/dashboard/notes");
   }
 
   const userByToken = await getUserByToken(params.token);
@@ -63,7 +63,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   }
 
   return createUserSession({
-    redirectTo: "/notes",
+    redirectTo: "/app/dashboard/notes",
     remember: false,
     request,
     userId: user.id,

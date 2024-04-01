@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
-import Button from "~/components/Button";
+import { Button } from "~/components/ui/button";
 import { sendMail } from "~/email.server";
 import { getUserByEmail, newToken } from "~/models/user.server";
 import { getDomain, validateEmail } from "~/utils";

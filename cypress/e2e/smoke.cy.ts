@@ -13,7 +13,7 @@ describe("smoke tests", () => {
 
     cy.then(() => ({ email: loginForm.email })).as("user");
 
-    cy.visitAndCheck("/login");
+    cy.visitAndCheck("/auth/login");
 
     cy.findByRole("link", { name: /sign up/i }).click();
 

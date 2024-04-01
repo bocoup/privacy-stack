@@ -6,7 +6,6 @@ interface entityProps {
   id: string | undefined;
   name: string;
   body: string | undefined;
-  color: string | undefined;
   image: string | undefined;
   imageDescription: string | undefined;
   userId: User["id"];
@@ -27,7 +26,6 @@ export function getNote({ id }: Pick<Note, "id">) {
 export async function createNote({
   name,
   body,
-  color,
   image,
   imageDescription,
   userId,
@@ -36,7 +34,6 @@ export async function createNote({
     data: {
       name,
       body,
-      color,
       image,
       imageDescription,
       userId,
@@ -48,7 +45,6 @@ export async function updateNote({
   id,
   name,
   body,
-  color,
   image,
   imageDescription,
   userId,
@@ -60,7 +56,6 @@ export async function updateNote({
     data: {
       name,
       body,
-      color,
       image,
       imageDescription,
       userId,
