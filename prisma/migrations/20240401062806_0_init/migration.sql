@@ -6,7 +6,9 @@ CREATE TABLE "User" (
     "emailVerified" BOOLEAN DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "doNotSell" BOOLEAN NOT NULL DEFAULT true
+    "doNotSell" BOOLEAN NOT NULL DEFAULT true,
+    "visualAvatar" TEXT,
+    "visualAvatarDescription" TEXT
 );
 
 -- CreateTable
@@ -23,7 +25,6 @@ CREATE TABLE "Note" (
     "updatedAt" DATETIME NOT NULL,
     "name" TEXT NOT NULL,
     "body" TEXT,
-    "color" TEXT,
     "image" TEXT,
     "imageDescription" TEXT,
     "userId" TEXT NOT NULL,
