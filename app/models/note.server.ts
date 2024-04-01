@@ -11,8 +11,12 @@ interface entityProps {
   userId: User["id"];
 }
 
-export function getNotes() {
-  return prisma.note.findMany();
+export function getNotes(userId: string) {
+  return prisma.note.findMany({
+    where: {
+      userId,
+    },
+  });
 }
 
 export function getNote({ id }: Pick<Note, "id">) {

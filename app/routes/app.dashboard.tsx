@@ -16,9 +16,9 @@ import { requireUserId } from "~/session.server";
 import { dashboardNavigation } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await requireUserId(request);
+  const userId = await requireUserId(request);
 
-  const notes = await getNotes();
+  const notes = await getNotes(userId);
   if (!notes) {
     throw new Response("No notes", { status: 404 });
   }

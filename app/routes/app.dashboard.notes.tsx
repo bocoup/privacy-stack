@@ -25,9 +25,9 @@ import { requireUserId } from "~/session.server";
 import { timeFromNow } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await requireUserId(request);
+  const userId = await requireUserId(request);
 
-  const notes = await getNotes();
+  const notes = await getNotes(userId);
   if (!notes) {
     throw new Response("No notes", { status: 404 });
   }
@@ -79,10 +79,7 @@ export default function NotePage() {
                     <div>
                       {note.name}
                       <span className="block text-xs text-slate-500">
-                        created{" "}
-                        {timeFromNow(
-                          new Date(note.createdAt).toLocaleDateString(),
-                        )}
+                        created {timeFromNow(note.createdAt)}
                       </span>
                     </div>
                   </div>

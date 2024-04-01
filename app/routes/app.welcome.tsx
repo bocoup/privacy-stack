@@ -27,7 +27,7 @@ export default function Welcome() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="py-32 sm:py-48 lg:py-56 space-y-4 p-4">
+    <div className="py-32 sm:py-48 lg:py-56 space-y-4 p-4 max-w-96 mx-auto">
       <div className="flex flex-col gap-4">
         <p>
           You just signed up for this App. Start by sharing creating a note, or
@@ -43,7 +43,7 @@ export default function Welcome() {
           all data about you from our system.
         </p>
         <Button
-          className="w-full bg-yellow-500"
+          className="w-full bg-yellow-600"
           onClick={() => {
             setOpen(true);
           }}
