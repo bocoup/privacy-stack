@@ -21,7 +21,7 @@ export default function Index() {
     <div className="">
       <NavigationSite />
 
-      <div className="mx-auto max-w-7xl px-6 py-6 sm:py-8 lg:flex lg:items-center lg:gap-x-10 lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-6xl px-6 py-6 sm:py-8 lg:flex lg:items-center lg:gap-x-10 lg:px-8 lg:pt-24 lg:pb-10">
         <div className="mx-auto max-w-2xl lg:mx-0 lg:flex-auto">
           <h1 className="max-w-lg text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
             Privacy first notes.
