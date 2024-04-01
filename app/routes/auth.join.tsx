@@ -194,7 +194,7 @@ export default function Join() {
         <Link
           className="underline"
           to={{
-            pathname: "/auth/auth/login",
+            pathname: "/auth/login",
             search: searchParams.toString(),
           }}
         >
