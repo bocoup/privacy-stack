@@ -129,11 +129,9 @@ export const features = [
     name: "Autocomplete search",
     description: `Type ahead search UI using <a href="https://www.fusejs.io/" class="underline">fuse.js</a> to help find your notes with client-side filtering.`,
     screenshot: (
-      <img
-        src="/site/search.png"
-        alt="screenshot of welcome email"
-        className="md:w-1/2 mt-4 md:-mt-4"
-      />
+      <BrowserMockup className="md:w-1/2">
+        <img src="/site/search.png" alt="screenshot of welcome email" />
+      </BrowserMockup>
     ),
     icon: <MagnifyingGlassIcon className="w-4" />,
   },
