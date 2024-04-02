@@ -6,6 +6,7 @@ import {
   CloudArrowUpIcon,
   CodeBracketIcon,
   EnvelopeIcon,
+  MagnifyingGlassIcon,
   ServerStackIcon,
   UserGroupIcon,
   WindowIcon,
@@ -101,7 +102,7 @@ export const features = [
   },
   {
     name: "File upload",
-    description: `Upload files directly to your own server with zero configuration.`,
+    description: `Upload files directly to your own server with zero configuration. No services needed, just the filesystem on the DIY server, and Remix.run's built in file upload handlers.`,
     screenshot: (
       <BrowserMockup className="md:w-1/2">
         <img
@@ -114,7 +115,7 @@ export const features = [
   },
   {
     name: "Transactional emails",
-    description: `Transactional emails using <a class="underline" href="https://sendgrid.com/">Sendgrid</a> with secure tokens, including: signup and confirm email, forgot password, and undo sign up.`,
+    description: `Automatic emails using <a class="underline" href="https://sendgrid.com/">Sendgrid</a> with secure tokens for: welcome  and forgot password.`,
     screenshot: (
       <img
         src="/site/email.png"
@@ -123,6 +124,18 @@ export const features = [
       />
     ),
     icon: <EnvelopeIcon className="w-4" />,
+  },
+  {
+    name: "Autocomplete search",
+    description: `Type ahead search UI using <a href="https://www.fusejs.io/" class="underline">fuse.js</a> to help find your notes with client-side filtering.`,
+    screenshot: (
+      <img
+        src="/site/email.png"
+        alt="screenshot of welcome email"
+        className="md:w-1/2 mt-4 md:-mt-4"
+      />
+    ),
+    icon: <MagnifyingGlassIcon className="w-4" />,
   },
   {
     name: "User Profiles",
@@ -175,7 +188,7 @@ export const features = [
 
   {
     name: "Continuous Integrations",
-    description: `<a class="underline" href="https://github.com/features/actions">GitHub Actions</a> for linting, typechecking, and smoke testing on merge to production and staging environments
+    description: `<a class="underline" href="https://github.com/features/actions">GitHub Actions</a> for linting, typechecking, and smoke testing on merge to production and staging environments.
         `,
     screenshot: (
       <BrowserMockup className="md:w-1/2">
@@ -189,7 +202,7 @@ export const features = [
   },
   {
     name: "Remix official template goodies",
-    description: `Styling with <a class="underline" href="https://tailwindcss.com/">Tailwind</a> , End-to-end testing with <a class="underline" href="https://cypress.io">Cypress</a> , Local third party request mocking with <a class="underline" href="https://mswjs.io">MSW</a> , Unit testing with <a class="underline" href="https://vitest.dev">Vitest</a> and <a class="underline" href="https://testing-library.com">Testing Library</a> , Code formatting with <a class="underline" href="https://prettier.io">Prettier</a> , Linting with <a class="underline" href="https://eslint.org">ESLint</a> , and Static Types with <a class="underline" href="https://typescriptlang.org">TypeScript</a>`,
+    description: `Styling with <a class="underline" href="https://tailwindcss.com/">Tailwind</a>, types with <a class="underline" href="https://typescriptlang.org">TypeScript</a>, testing with <a class="underline" href="https://cypress.io">Cypress</a>, <a class="underline" href="https://vitest.dev">Vitest</a> and <a class="underline" href="https://testing-library.com">Testing Library</a>, formatting with <a class="underline" href="https://prettier.io">Prettier</a> , linting with <a class="underline" href="https://eslint.org">ESLint</a>, mocking with <a class="underline" href="https://mswjs.io">MSW</a>.`,
     screenshot: (
       <BrowserMockup className="md:w-1/2">
         <img src="/site/indie-stack.png" alt="screenshot of notes dashboard" />
