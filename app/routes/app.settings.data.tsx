@@ -113,10 +113,13 @@ export default function DataPage() {
           </div>
           <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt className="text-sm font-medium leading-6 text-gray-900">
-              Favorites
+              Notes
             </dt>
             <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-              You have <Badge>{user.notes.length} notes</Badge>{" "}
+              You have{" "}
+              <Badge>
+                {user.notes.length} note{user.notes.length === 1 ? "" : "s"}
+              </Badge>{" "}
               {user.notes.length ? (
                 <>
                   which you can see on your{" "}
