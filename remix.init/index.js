@@ -119,11 +119,8 @@ const main = async ({ packageManager, rootDirectory }) => {
     "delete-user.ts",
   );
   const DIR_NAME = path.basename(rootDirectory);
-  const SUFFIX = getRandomString(2);
 
-  const APP_NAME = (DIR_NAME + "-" + SUFFIX)
-    // get rid of anything that's not allowed in an app name
-    .replace(/[^a-zA-Z0-9-_]/g, "-");
+  const APP_NAME = DIR_NAME;
 
   const [
     readme,

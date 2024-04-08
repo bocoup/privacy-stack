@@ -1,8 +1,8 @@
 Production:
-  hosts: privacy-stack-template.com
+  hosts: privacy-stack-template
   vars:
-    domain: privacy-stack-template.com # used for your app's domain name
-    email: you@privacy-stack-template.com # used for your certbot email, note you'll be agreeing to the ToS.
+    domain: privacy-stack-template # used for your app's domain name
+    email: you@privacy-stack-template # used for your certbot email, note you'll be agreeing to the ToS.
     nodejs_version: 20 # pick your node version
     ansible_ssh_pass: "secret" # if you have an SSH key on your server for the root user, you don't need this
     deploy_files: # list of files and folders to copy to the server on deploy
