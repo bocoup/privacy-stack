@@ -42,32 +42,29 @@ export default function Welcome() {
   const actionData = useActionData<typeof action>();
 
   return (
-    <div className="space-y-4 h-full p-4">
-      <h2 className="font-bold text-2xl mb-8">Verify your email</h2>
-      <div className="mt-10">
-        {loaderData.success ? (
-          <p>
-            {loaderData.success}{" "}
-            <Link to="/" className="underline">
-              Continue home
-            </Link>
-            .
-          </p>
-        ) : (
-          <>
-            {actionData?.success ? (
-              <p className="mt-4">Sent!</p>
-            ) : (
-              <Form method="post" className="flex flex-col gap-4">
-                Looks like this token is not valid anymore.
-                <Button type="submit" className="w-full bg-emerald-800">
-                  Send me a new link
-                </Button>
-              </Form>
-            )}
-          </>
-        )}
-      </div>
+    <div className="space-y-4 h-screen flex flex-col justify-center p-4 w-[500px] mx-auto text-center">
+      {loaderData.success ? (
+        <p>
+          {loaderData.success}{" "}
+          <Link to="/app/dashboard" className="underline">
+            Continue home
+          </Link>
+          .
+        </p>
+      ) : (
+        <>
+          {actionData?.success ? (
+            <p className="mt-4">Sent!</p>
+          ) : (
+            <Form method="post" className="flex flex-col gap-4">
+              Looks like this token is not valid anymore.
+              <Button type="submit" className="w-full bg-emerald-800">
+                Send me a new link
+              </Button>
+            </Form>
+          )}
+        </>
+      )}
     </div>
   );
 }

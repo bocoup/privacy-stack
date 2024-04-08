@@ -13,7 +13,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 export default function Welcome() {
   return (
-    <div className="space-y-4 h-full p-4">
+    <div className="space-y-4 h-screen flex flex-col justify-center p-4 w-[500px] mx-auto text-center">
       <h2 className="font-bold text-2xl mb-8">Undo signup</h2>
       <Form method="post" className="mt-5 sm:mt-6 space-y-4">
         <p>
