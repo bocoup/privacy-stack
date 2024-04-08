@@ -163,7 +163,7 @@ const main = async ({ packageManager, rootDirectory }) => {
     .replace(REPLACER, APP_NAME)
     .replace(initInstructions, "");
 
-  const newInventory = inventory.replace(REPLACER, APP_NAME);
+  const newInventory = inventory.replaceAll(REPLACER, APP_NAME);
 
   updatePackageJson({ APP_NAME, packageJson, packageManager: pm });
 
