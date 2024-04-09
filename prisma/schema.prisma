@@ -8,15 +8,15 @@ datasource db {
 }
 
 model User {
-  id                      String      @id @default(cuid())
-  email                   String      @unique
-  token                   String      @unique
-  emailVerified           Boolean?    @default(false)
-  createdAt               DateTime    @default(now())
-  updatedAt               DateTime    @updatedAt
+  id                      String    @id @default(cuid())
+  email                   String    @unique
+  token                   String    @unique
+  emailVerified           Boolean?  @default(false)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
   password                Password?
   notes                   Note[]
-  doNotSell               Boolean     @default(true)
+  doNotSell               Boolean   @default(true)
   visualAvatar            String?
   visualAvatarDescription String?
 }
@@ -28,13 +28,13 @@ model Password {
 }
 
 model Note {
-  id               String         @id @default(cuid())
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
   name             String
   body             String?
   image            String?
   imageDescription String?
   userId           String
-  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
