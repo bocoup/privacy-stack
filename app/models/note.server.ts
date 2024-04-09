@@ -2,12 +2,12 @@ import type { User, Note } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
-interface entityProps {
-  id: string | undefined;
-  name: string;
-  body: string | undefined;
-  image: string | undefined;
-  imageDescription: string | undefined;
+interface NoteProps {
+  id: Note["id"] | undefined;
+  name: Note["name"];
+  body: Note["body"] | undefined;
+  image: Note["image"] | undefined;
+  imageDescription: Note["imageDescription"] | undefined;
   userId: User["id"];
 }
 
@@ -33,7 +33,7 @@ export async function createNote({
   image,
   imageDescription,
   userId,
-}: entityProps) {
+}: NoteProps) {
   return prisma.note.create({
     data: {
       name,
@@ -52,7 +52,7 @@ export async function updateNote({
   image,
   imageDescription,
   userId,
-}: entityProps) {
+}: NoteProps) {
   return await prisma.note.update({
     where: {
       id,
