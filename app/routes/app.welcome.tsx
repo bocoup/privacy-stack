@@ -43,7 +43,7 @@ export default function Welcome() {
           all data about you from our system.
         </p>
         <Button
-          className="w-full bg-yellow-600"
+          className="w-full bg-slate-600"
           onClick={() => {
             setOpen(true);
           }}
@@ -52,7 +52,7 @@ export default function Welcome() {
         </Button>
         <p className="text-xs italic text-center">
           (you can do this later from the{" "}
-          <Link to="/data" className="underline">
+          <Link to="/app/settings/data" className="underline">
             data page
           </Link>{" "}
           as well)
