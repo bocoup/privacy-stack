@@ -46,7 +46,8 @@ export function Autocomplete({
         getRootProps,
       }) => (
         <div className="grow flex">
-          <label htmlFor="search" className="sr-only" {...getLabelProps()}>
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+          <label className="sr-only" {...getLabelProps()}>
             Search notes by name or body text
           </label>
           <div
@@ -56,7 +57,6 @@ export function Autocomplete({
             <Input
               {...getInputProps({
                 name: "search",
-                id: "search",
                 placeholder: "Note name or body text",
                 className:
                   "w-full flex-1 appearance-none bg-background pl-8 shadow-none",

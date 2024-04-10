@@ -11,9 +11,11 @@ import {
 } from "@remix-run/react";
 import { CircleUser, Menu, Search } from "lucide-react";
 import { useRef } from "react";
+// @ts-expect-error this is here, I promise
+import { ClientOnly } from "remix-utils/client-only";
 
+import { Autocomplete } from "~/components/auto-complete";
 import { Logo } from "~/components/logo";
-import { Autocomplete } from "~/components/type-ahead";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -24,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { Input } from "~/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
 import { getNotes } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
@@ -109,7 +112,16 @@ export default function AppShell() {
             </Sheet>
             <div className="relative grow flex" ref={searchRef}>
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Autocomplete items={data.notes} />
+              <ClientOnly
+                fallback={
+                  <Input
+                    placeholder="Note name or body text"
+                    className="w-full flex-1 appearance-none bg-background pl-8 shadow-none"
+                  />
+                }
+              >
+                {() => <Autocomplete items={data.notes} />}
+              </ClientOnly>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
