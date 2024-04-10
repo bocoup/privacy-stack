@@ -1,4 +1,3 @@
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -10,11 +9,11 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import Fuse from "fuse.js";
 import { CircleUser, Menu, Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 
 import { Logo } from "~/components/logo";
+import { Autocomplete } from "~/components/type-ahead";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -25,8 +24,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Input } from "~/components/ui/input";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
 import { getNotes } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
@@ -51,40 +48,6 @@ export default function AppShell() {
   const data = useLoaderData<typeof loader>();
   const user = useUser();
   const searchRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
-  const [notes, setNotes] = useState(data.notes);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const fuse = new Fuse(data.notes, {
-    includeScore: true,
-    keys: ["name", "body"],
-    threshold: 0,
-  });
-
-  useEffect(() => {
-    const keyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setSearchOpen(false);
-        searchInputRef.current?.blur();
-      }
-    };
-
-    const pointerDown = (e: PointerEvent) => {
-      const target = e.target as HTMLInputElement;
-
-      if (!searchRef.current?.contains(target)) {
-        setSearchOpen(false);
-      }
-    };
-
-    document.addEventListener("keydown", keyDown);
-    document.addEventListener("pointerdown", pointerDown);
-    return () => {
-      document.removeEventListener("keydown", keyDown);
-      //@ts-expect-error ts is ok with the binding but not the unbinding of this one
-      document.removeEventListener("pointerDown", pointerDown);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen w-full">
@@ -146,85 +109,7 @@ export default function AppShell() {
             </Sheet>
             <div className="relative grow flex" ref={searchRef}>
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                ref={searchInputRef}
-                placeholder="Search products..."
-                className="w-full flex-1 appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-                onFocus={() => {
-                  setSearchOpen(true);
-                }}
-                onKeyDown={(e: React.KeyboardEvent<Element>) => {
-                  const firstResult = document.querySelectorAll(
-                    ".result",
-                  )[0] as HTMLElement;
-                  if (e.key === "ArrowDown" && firstResult) {
-                    firstResult.focus();
-                    return;
-                  }
-
-                  searchInputRef.current?.focus();
-                }}
-                onChange={(e) => {
-                  if (e.target.value.length) {
-                    setNotes(fuse.search(e.target.value).map((r) => r.item));
-                  } else {
-                    setNotes(data.notes);
-                  }
-                }}
-              />
-              {searchOpen && notes.length ? (
-                <div
-                  className="absolute top-[37px] left-4 w-[90%]"
-                  ref={resultsRef}
-                >
-                  <ScrollArea className="max-h-96 z-50 bg-white border-b-md shadow p-2">
-                    <ul className="w-full p-1 flex flex-col">
-                      {notes.map((note) => (
-                        <Link
-                          key={note.id}
-                          to={`/app/dashboard/note/${note.id}`}
-                          onClick={() => {
-                            setSearchOpen(false);
-                          }}
-                          onKeyDown={(e: React.KeyboardEvent<Element>) => {
-                            if (e.key === "Enter") {
-                              return;
-                            }
-
-                            const target = e.target as HTMLInputElement;
-                            const previousElement =
-                              target.previousElementSibling as HTMLElement;
-                            const nextElement =
-                              target.nextElementSibling as HTMLElement;
-
-                            e.preventDefault();
-
-                            if (e.key === "ArrowUp" && previousElement) {
-                              previousElement.focus();
-                              return;
-                            }
-
-                            if (
-                              (e.key === "ArrowDown" || e.key === "Tab") &&
-                              nextElement
-                            ) {
-                              nextElement.focus();
-                              return;
-                            }
-
-                            searchInputRef.current?.focus();
-                          }}
-                          className="result p-2 flex w-[98%] mx-auto justify-between  hover:bg-slate-100"
-                        >
-                          {note.name}
-                          <ChevronRightIcon className="w-4" />
-                        </Link>
-                      ))}{" "}
-                    </ul>
-                  </ScrollArea>
-                </div>
-              ) : null}
+              <Autocomplete items={data.notes} />
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
