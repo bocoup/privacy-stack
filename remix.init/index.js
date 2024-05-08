@@ -191,7 +191,7 @@ const main = async ({ packageManager, rootDirectory }) => {
     fs.rm(path.join(rootDirectory, "LICENSE.md")),
   ]);
 
-  execSync("git submodule add git@github.com:bocoup/deploy.git", { cwd: rootDirectory, stdio: "inherit" })
+  execSync("git submodule add https://github.com/bocoup/deploy.git", { cwd: rootDirectory, stdio: "inherit" })
 
   execSync(pm.run("setup"), { cwd: rootDirectory, stdio: "inherit" });
 
