@@ -2,7 +2,7 @@
 
 This is stack is based on the [Remix Indie Stack](https://github.com/remix-run/indie-stack), with additions that center data privacy, and add a custom responsive UI with [shadcn](https://ui.shadcn.com/blocks). This stack depends on a file system for sqlite and file upload, and on node for crypto functions. Read more about [Remix Stacks](https://remix.run/stacks) to get started.
 
-Or run `npx create-remix@latest --template https://github.com/bocoup/privacy-stack.git`
+Or run `npx create-remix@latest --template bocoup/privacy-stack`
 
 ## What's in the stack
 
