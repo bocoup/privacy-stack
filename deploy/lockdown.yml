@@ -1,0 +1,40 @@
+- name: Add deploy user and disable root user
+  hosts: all
+  vars:
+  remote_user: root
+  tasks:
+    - name: Add a new user named deploy
+      user: name=deploy
+
+    - name: Add deploy user to the sudoers
+      copy:
+        dest: "/etc/sudoers.d/deploy"
+        content: "deploy  ALL=(ALL)  NOPASSWD: ALL"
+
+    - name: Deploy your SSH Key
+      authorized_key: user=deploy
+        key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        state=present
+
+    - name: Disable Password Authentication
+      lineinfile: dest=/etc/ssh/sshd_config
+        regexp='^PasswordAuthentication'
+        line="PasswordAuthentication no"
+        state=present
+        backup=yes
+      notify:
+        - restart ssh
+
+    - name: Disable Root Login
+      lineinfile: dest=/etc/ssh/sshd_config
+        regexp='^PermitRootLogin'
+        line="PermitRootLogin no"
+        state=present
+        backup=yes
+      notify:
+        - restart ssh
+
+  handlers:
+    - name: restart ssh
+      service: name=ssh
+        state=restarted

@@ -1,0 +1,114 @@
+- name: Update and upgrade apt packages
+  hosts: all
+  remote_user: deploy
+  become: yes
+
+  tasks:
+    - name: Update apt repo and cache
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+        force_apt_get: yes
+
+    - name: Check if a reboot is needed
+      register: reboot_required_file
+      stat:
+        path: /var/run/reboot-required
+
+    - name: Reboot the server if kernel updated
+      reboot:
+        msg: "Reboot initiated by Ansible for kernel updates"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: uptime
+      when: reboot_required_file.stat.exists
+
+- name: Install packages
+  hosts: all
+  remote_user: deploy
+  become: true
+  tasks:
+    - name: Install system packages with apt
+      register: updatesys
+      apt:
+        update_cache: yes
+        name:
+          - curl
+          - gnupg
+          - ufw
+          - nginx
+          - python3-certbot-nginx
+        state: present
+
+    - name: Enable ufw firewall
+      community.general.ufw:
+        state: enabled
+
+    - community.general.ufw:
+        rule: allow
+        name: OpenSSH
+
+    - community.general.ufw:
+        rule: allow
+        name: "Nginx Full"
+
+    - name: Create directory for the app
+      file: path=/home/{{domain}}
+        state=directory
+        owner=deploy
+        group=deploy
+
+    - name: Copy nginx conf to server
+      template: src=./templates/nginx.conf
+        dest=/etc/nginx/sites-available/{{ domain }}.conf
+
+    - name: Create symlink to new nginx conf
+      file: src=/etc/nginx/sites-available/{{ domain }}.conf
+        dest=/etc/nginx/sites-enabled/{{ domain }}.conf
+        state=link
+
+    - name: Create ssl certificate with certbot
+      shell: "sudo certbot --nginx -d {{ domain }} --agree-tos --email {{ email }} --non-interactive"
+      notify: Restart nginx
+
+    - name: Copy systemd service to server
+      template: src=./templates/systemd.service
+        dest=/lib/systemd/system/{{ domain }}.service
+
+    - name: Copy systemd friendly start script to server
+      template:
+        src: ./templates/start.sh
+        dest: /home/{{ domain }}/start.sh
+        mode: +x
+
+    - name: Reload and enable systemd service
+      shell: "sudo systemctl daemon-reload && sudo systemctl enable --now {{ domain }} && sudo systemctl start {{ domain }}"
+
+  handlers:
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+
+- name: Install node and the app
+  hosts: all
+  remote_user: deploy
+  tasks:
+    - name: Install nvm
+      shell: >
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+      args:
+        creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+
+    - name: Install node and set version
+      shell: >
+        source ~/.nvm/nvm.sh && nvm install {{ nodejs_version }} && nvm use {{ nodejs_version }}
+      args:
+        executable: /bin/bash
