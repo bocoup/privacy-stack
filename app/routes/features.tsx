@@ -21,7 +21,7 @@ import {
 import { cn } from "~/utils";
 
 export const meta: MetaFunction = () => [
-  { title: "Learn How To Use Roberts App" },
+  { title: "Features of the Privacy Stack" },
 ];
 
 export default function Index() {
@@ -115,7 +115,7 @@ export const features = [
   },
   {
     name: "Transactional emails",
-    description: `Automatic emails using <a class="underline" href="https://sendgrid.com/">Sendgrid</a> with secure tokens for: welcome  and forgot password.`,
+    description: `Automatic emails using <a class="underline" href="https://sendgrid.com/">Sendgrid</a> with secure tokens for welcome  and forgot password.`,
     screenshot: (
       <img
         src="/site/email.png"
@@ -160,16 +160,6 @@ export const features = [
       </BrowserMockup>
     ),
     icon: <AdjustmentsVerticalIcon className="w-4" />,
-  },
-  {
-    name: "Marketing Site",
-    description: `You are on it! This site comes with the privacy stack, so you can focus on the content.`,
-    screenshot: (
-      <BrowserMockup className="md:w-1/2">
-        <img src="/site/marketing-site.png" alt="screenshot of home page" />
-      </BrowserMockup>
-    ),
-    icon: <WindowIcon className="w-4" />,
   },
   {
     name: "Database",

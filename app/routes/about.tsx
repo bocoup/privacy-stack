@@ -14,7 +14,7 @@ import {
 } from "~/components/navigation-site";
 import PhoneMockup from "~/components/phone-mockup";
 
-export const meta: MetaFunction = () => [{ title: "About Roberts App" }];
+export const meta: MetaFunction = () => [{ title: "About the Privacy Stack" }];
 
 export default function About() {
   return (

@@ -24,7 +24,7 @@ export default function Index() {
       <div className="mx-auto max-w-6xl px-6 py-6 sm:py-8 lg:flex lg:items-center lg:gap-x-10 lg:px-8 lg:pt-24 lg:pb-10">
         <div className="mx-auto max-w-2xl lg:mx-0 lg:flex-auto">
           <h1 className="max-w-lg text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            Privacy first notes.
+            Privacy first.
           </h1>
           <p className="text-lg leading-8 text-gray-600 my-10">
             The Privacy Stack is an open source web app with consent-centered
@@ -32,7 +32,8 @@ export default function Index() {
             compliance out of the box with easy data access and deletion, and
             undo-signup. We also packed in a lot of other goodies, like user
             profiles, file uploads, and a UI library with lots of patterns to
-            choose from.
+            choose from. The Privacy Stack comes with a demo notes app, which
+            you can try out here:
           </p>
 
           {user ? (
@@ -46,7 +47,7 @@ export default function Index() {
               </Button>
             </div>
           ) : (
-            <div className="space-y-4 w-64 mx-auto mt-0 md:mt-28">
+            <div className="space-y-4 w-64 mx-auto mt-0 md:mt-18">
               <div className="flex gap-4 justify-between w-full">
                 <Button asChild variant="secondary" className="flex-1">
                   <Link to="/auth/login"> Log in</Link>

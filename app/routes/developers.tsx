@@ -5,7 +5,7 @@ import {
   NavigationSiteFooter,
 } from "~/components/navigation-site";
 
-export const meta: MetaFunction = () => [{ title: "About Roberts App" }];
+export const meta: MetaFunction = () => [{ title: "Developer overview" }];
 
 export default function About() {
   return (

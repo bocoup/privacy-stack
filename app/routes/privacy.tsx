@@ -5,9 +5,7 @@ import {
   NavigationSiteFooter,
 } from "~/components/navigation-site";
 
-export const meta: MetaFunction = () => [
-  { title: "Privacy Policy For Roberts App" },
-];
+export const meta: MetaFunction = () => [{ title: "Privacy Policy" }];
 
 export default function About() {
   return (
@@ -19,7 +17,7 @@ export default function About() {
         </h1>
         <p className="my-6 text-xl leading-8 text-gray-700">
           Our privacy policy is our commitment to you. We deeply value consent
-          and honor your privacy and conset. With the Privacy Stack, you can
+          and honor your privacy and consent. With the Privacy Stack, you can
           easily view your data, mark it not to be sold, delete your data, and
           undo your signup completely.
         </p>
@@ -29,10 +27,10 @@ export default function About() {
               What we can see
             </h2>
             <p>
-              When you create an account with the Privacy Stack, our team can
-              see your account&apos;s email address. For all other data,
-              including the notes your create, we use data encryption for your
-              privacy.
+              When you create an account with the Privacy Stack Demo Notes App,
+              our team can see your account&apos;s email address. You can fully
+              delete your account after signing up, and we will not save a copy
+              of it.
             </p>
           </div>
           <div>
@@ -60,12 +58,8 @@ export default function About() {
             </h2>
             <p>
               We will never sell your date anyone. The Privacy Stack Notes App
-              had a Do Not Sell preference built in because we think companies
-              that sell data will use this boilerplate. If you are one of those
-              companies using this boilerplate, replace this section with a
-              plain laguange description of how. Reminder that there can be
-              granularity here. For example, you can sell insights from data
-              without selling data to data brokers.
+              has a Do Not Sell preference built in because we think companies
+              that sell data will use it as boilerplate.
             </p>
           </div>
 
