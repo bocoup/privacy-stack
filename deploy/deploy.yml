@@ -1,0 +1,26 @@
+- name: Deploy the app
+  hosts: all
+  remote_user: deploy
+  tasks:
+    - name: Copy app files to server
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop: "{{ deploy_files }}"
+
+    - name: Install npm deps
+      shell:
+        cmd: "source /home/deploy/.nvm/nvm.sh && nvm exec default npm install"
+        chdir: /home/{{ domain }}
+      args:
+        executable: /bin/bash
+
+    - name: Run migrations
+      shell:
+        cmd: "source /home/deploy/.nvm/nvm.sh && nvm exec default npx prisma migrate deploy"
+        chdir: /home/{{ domain }}
+      args:
+        executable: /bin/bash
+
+    - name: Start the app with systemd
+      shell: "sudo systemctl restart {{ domain }}"

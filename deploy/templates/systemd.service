@@ -1,0 +1,14 @@
+[Unit]
+Description={{ domain }}
+After=network.target
+
+[Service]
+Environment=NODE_ENV=production
+Type=simple
+User=root
+WorkingDirectory=/home/{{ domain }}
+ExecStart=/home/{{ domain }}/start.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
