@@ -34,7 +34,5 @@ Production:
         dest: /home/{{ domain }}/
       - src: ../package-lock.json
         dest: /home/{{ domain }}/
-      - src: ../LICENSE.md
-        dest: /home/{{ domain }}/
       - src: ../README.md
         dest: /home/{{ domain }}/
