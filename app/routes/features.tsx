@@ -9,7 +9,6 @@ import {
   MagnifyingGlassIcon,
   ServerStackIcon,
   UserGroupIcon,
-  WindowIcon,
 } from "@heroicons/react/20/solid";
 import type { MetaFunction } from "@remix-run/node";
 
