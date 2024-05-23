@@ -10,8 +10,8 @@ const REPLACER = "privacy-stack-template";
 const cleanupCypressFiles = ({ fileEntries, packageManager }) =>
   fileEntries.flatMap(([filePath, content]) => {
     const newContent = content.replace(
-      new RegExp("npx ts-node", "g"),
-      packageManager.name === "bun" ? "bun" : `${packageManager.exec} ts-node`,
+      new RegExp("npx tsx", "g"),
+      packageManager.name === "bun" ? "bun" : `${packageManager.exec} tsx`,
     );
 
     return [fs.writeFile(filePath, newContent)];
@@ -83,13 +83,13 @@ const updatePackageJson = ({ APP_NAME, packageJson, packageManager }) => {
     name: APP_NAME,
     devDependencies:
       packageManager.name === "bun"
-        ? removeUnusedDependencies(devDependencies, ["ts-node"])
+        ? removeUnusedDependencies(devDependencies, ["tsx"])
         : devDependencies,
     prisma: {
       ...prisma,
       seed:
         packageManager.name === "bun"
-          ? prismaSeed.replace("ts-node", "bun")
+          ? prismaSeed.replace("tsx", "bun")
           : prismaSeed,
     },
     scripts,
@@ -191,7 +191,10 @@ const main = async ({ packageManager, rootDirectory }) => {
     fs.rm(path.join(rootDirectory, "LICENSE.md")),
   ]);
 
-  execSync("git submodule add git@github.com:bocoup/deploy.git", { cwd: rootDirectory, stdio: "inherit" })
+  execSync("git submodule add git@github.com:bocoup/deploy.git", {
+    cwd: rootDirectory,
+    stdio: "inherit",
+  });
 
   execSync(pm.run("setup"), { cwd: rootDirectory, stdio: "inherit" });
 
