@@ -203,6 +203,8 @@ const main = async ({ packageManager, rootDirectory }) => {
   console.log(
     `Setup is complete.
 
+Enter your project directory using cd ./${rootDirectory}
+
 Start development with \`${pm.run("dev")}\`
     `.trim(),
   );
