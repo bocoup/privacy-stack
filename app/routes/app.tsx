@@ -11,6 +11,7 @@ import {
 } from "@remix-run/react";
 import { CircleUser, Menu, Search } from "lucide-react";
 import { useRef } from "react";
+// @ts-expect-error this is here, I promise
 import { ClientOnly } from "remix-utils/client-only";
 
 import { Autocomplete } from "~/components/auto-complete";
