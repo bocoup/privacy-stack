@@ -5,6 +5,7 @@ node_modules
 /public/build
 /public/media
 .env
+inventory.yml
 
 /cypress/screenshots
 /cypress/videos
