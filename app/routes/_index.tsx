@@ -9,8 +9,8 @@ import {
   MagnifyingGlassIcon,
   ServerStackIcon,
   UserGroupIcon,
+  LockClosedIcon,
 } from "@heroicons/react/20/solid";
-import { LockClosedIcon } from "@heroicons/react/20/solid";
 import type { MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 
