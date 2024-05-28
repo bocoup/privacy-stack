@@ -1,8 +1,10 @@
 # privacy-stack-template
 
-This is stack is based on the [Remix Indie Stack](https://github.com/remix-run/indie-stack), with additions that center data privacy, and add a custom responsive UI with [shadcn](https://ui.shadcn.com/blocks). This stack depends on a file system for sqlite and file upload, and on node for crypto functions. Read more about [Remix Stacks](https://remix.run/stacks) to get started.
+This is stack is based on the [Remix Indie Stack](https://github.com/remix-run/indie-stack), with additions that center data privacy, self hosting, and add a responsive UI with [shadcn](https://ui.shadcn.com/blocks). This stack depends on a file system for sqlite and file upload, and on node for crypto functions. Read more about [Remix Stacks](https://remix.run/stacks) to get started.
 
-Or run `npx create-remix@latest --template bocoup/privacy-stack`
+The Privacy Stack comes with a default notes app that showcases its features. To generate a new app with the Privacy Stack run:
+
+`npx create-remix@latest --template bocoup/privacy-stack`
 
 ## What's in the stack
 
@@ -10,7 +12,7 @@ Or run `npx create-remix@latest --template bocoup/privacy-stack`
 - [GitHub Actions](https://github.com/features/actions) for linting, typechecking, and smoke testing on merge to production and staging environments
 - Email/Password Authentication with [cookie-based sessions](https://remix.run/utils/sessions#md-createcookiesessionstorage)
 - Transactional emails with secure tokens, including forgot password and delete my data, with [Sendgrid](https://sendgrid.com/)
-- [GDPR](https://gdpr.eu/what-is-gdpr/) and [CCPA](https://www.oag.ca.gov/privacy/ccpa) compliance with do not sell, data access, and data deletion flows
+- [GDPR](https://gdpr.eu/what-is-gdpr/) and [CCPA](https://www.oag.ca.gov/privacy/ccpa) self-serve flows with do not sell, data access, and data deletion flows
   - Default do not sell on signup
   - See what data is stored about me
   - Delete most of my data
