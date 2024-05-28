@@ -19,7 +19,7 @@ import PhoneMockup from "~/components/phone-mockup";
 import { Button } from "~/components/ui/button";
 import { useOptionalUser } from "~/utils";
 
-export const meta: MetaFunction = () => [{ title: "Bocoup Notes" }];
+export const meta: MetaFunction = () => [{ title: "Privacy Stack" }];
 
 export default function Index() {
   const user = useOptionalUser();
@@ -29,16 +29,16 @@ export default function Index() {
       <div className="mx-auto max-w-6xl px-6 py-6 sm:py-8 lg:flex lg:items-center lg:gap-x-10 lg:px-8 lg:pt-24 lg:pb-10">
         <div className="mx-auto max-w-2xl lg:mx-0 lg:flex-auto">
           <h1 className="max-w-lg text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            Privacy first.
+            Privacy Stack
           </h1>
           <p className="text-lg leading-8 text-gray-600 my-10">
             The Privacy Stack is an open source web app with consent-centered
-            privacy design and accessible components. You get GDPR and CCPA
-            compliance out of the box with easy data access and deletion, and
-            undo-signup. We also packed in a lot of other goodies, like user
-            profiles, file uploads, and a UI library with lots of patterns to
-            choose from. The Privacy Stack comes with a demo notes app, which
-            you can try out here:
+            privacy design and accessible components. You get self-serve GDPR
+            and CCPA user flows out of the box with easy data access and
+            deletion, and undo-signup. We also packed in a lot of other goodies,
+            like user profiles, file uploads, and a UI library with lots of
+            patterns to choose from. The Privacy Stack comes with a demo notes
+            app, which you can try out here:
           </p>
 
           {user ? (
@@ -135,8 +135,8 @@ export default function Index() {
 
 const features = [
   {
-    name: "GDPR and CCPA compliance",
-    description: `<a class="underline" href="https://gdpr.eu/what-is-gdpr/">GDPR</a> and <a class="underline" href="https://www.oag.ca.gov/privacy/ccpa">CCPA</a> compliance with do not sell, data access, and data deletion flows, including: Default do not sell on signup, data access, data deletion, and undo sign up.
+    name: "GDPR and CCPA user flows",
+    description: `<a class="underline" href="https://gdpr.eu/what-is-gdpr/">GDPR</a> and <a class="underline" href="https://www.oag.ca.gov/privacy/ccpa">CCPA</a> self-serve user flows with do not sell, data access, and data deletion flows, including: Default do not sell on signup, data access, data deletion, and undo sign up.
           `,
     screenshot: (
       <BrowserMockup className="md:w-1/2">
@@ -176,7 +176,7 @@ const features = [
   },
   {
     name: "Transactional emails",
-    description: `Automatic emails using <a class="underline" href="https://sendgrid.com/">Sendgrid</a> with secure tokens for welcome  and forgot password.`,
+    description: `Automatic emails using <a class="underline" href="https://sendgrid.com/">Sendgrid</a> with secure tokens for welcome  and forgot password. We're actively looking for a privacy-first replacement. Get in touch if you know of one.`,
     screenshot: (
       <img
         src="/site/email.png"
