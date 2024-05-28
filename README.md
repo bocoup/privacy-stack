@@ -90,7 +90,7 @@ We use [Prettier](https://prettier.io/) for auto-formatting in this project. It'
 
 ## Deployment
 
-This project includes a diy deployment workflow from the [bocoup/deploy](https://github.com/bocoup/deploy) repo. Follow the instructions in this repo's copy of `deploy/README.md`. It will guide you through the process of:
+This project includes a diy deployment workflow from the [bocoup/deploy](https://github.com/bocoup/deploy) repo. Follow the instructions in the [deploy README](/deploy/README.md). It will guide you through the process of:
 
 1. Creating or catting your SSH keys
 2. Getting a server
