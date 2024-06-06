@@ -16,6 +16,10 @@ import { ClientOnly } from "remix-utils/client-only";
 
 import { Autocomplete } from "~/components/auto-complete";
 import { Logo } from "~/components/logo";
+import {
+  dashboardNavigation,
+  settingsNavigation,
+} from "~/components/navigation";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -30,12 +34,7 @@ import { Input } from "~/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
 import { getNotes } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
-import {
-  dashboardNavigation,
-  settingsNavigation,
-  staticNavigation,
-  useUser,
-} from "~/utils";
+import { usePages, useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -51,7 +50,7 @@ export default function AppShell() {
   const data = useLoaderData<typeof loader>();
   const user = useUser();
   const searchRef = useRef<HTMLDivElement>(null);
-
+  const pages = usePages();
   return (
     <div className="min-h-screen w-full">
       <div className="w-full flex flex-col">
@@ -152,9 +151,14 @@ export default function AppShell() {
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                {staticNavigation.map((navItem) => (
-                  <DropdownMenuItem key={navItem.to}>
-                    <NavLink to={navItem.to}>{navItem.label}</NavLink>
+                <DropdownMenuItem>
+                  <NavLink to="/app/dashboard">Dashboard</NavLink>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+                {pages?.map((page) => (
+                  <DropdownMenuItem key={page.slug}>
+                    <NavLink to={`/p/${page.slug}`}>{page.title}</NavLink>
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />

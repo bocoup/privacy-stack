@@ -9,11 +9,11 @@ import {
   useRouteError,
 } from "@remix-run/react";
 
+import { dashboardNavigation } from "~/components/navigation";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { getNotes } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
-import { dashboardNavigation } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);

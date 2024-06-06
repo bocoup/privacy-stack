@@ -6,8 +6,8 @@ import {
   useRouteError,
 } from "@remix-run/react";
 
+import { settingsNavigation } from "~/components/navigation";
 import { requireUserId } from "~/session.server";
-import { settingsNavigation } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await requireUserId(request);

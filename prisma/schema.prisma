@@ -19,12 +19,22 @@ model User {
   doNotSell               Boolean   @default(true)
   visualAvatar            String?
   visualAvatarDescription String?
+  isAdmin                 Boolean   @default(false)
 }
 
 model Password {
   hash   String
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Site {
+  id              String  @id @default(cuid())
+  name            String?
+  tagline         String?
+  lede            String?
+  logo            String?
+  logoDescription String?
 }
 
 model Note {
@@ -37,4 +47,13 @@ model Note {
   imageDescription String?
   userId           String
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String
+  slug      String   @unique
+  body      String
 }

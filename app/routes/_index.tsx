@@ -10,11 +10,13 @@ import {
   ServerStackIcon,
   UserGroupIcon,
   LockClosedIcon,
+  DocumentTextIcon,
 } from "@heroicons/react/20/solid";
 import type { MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 
 import BrowserMockup from "~/components/browser-mockup";
+import { NavigationSite, NavigationSiteFooter } from "~/components/navigation";
 import PhoneMockup from "~/components/phone-mockup";
 import { Button } from "~/components/ui/button";
 import { useOptionalUser } from "~/utils";
@@ -26,6 +28,7 @@ export default function Index() {
 
   return (
     <div className="">
+      <NavigationSite />
       <div className="mx-auto max-w-6xl px-6 py-6 sm:py-8 lg:flex lg:items-center lg:gap-x-10 lg:px-8 lg:pt-24 lg:pb-10">
         <div className="mx-auto max-w-2xl lg:mx-0 lg:flex-auto">
           <h1 className="max-w-lg text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
@@ -76,7 +79,6 @@ export default function Index() {
           />
         </PhoneMockup>
       </div>
-
       <div className="bg-white py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl sm:text-center">
@@ -111,24 +113,7 @@ export default function Index() {
           </dl>
         </div>
       </div>
-      <footer>
-        <div className="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
-          <p className="mt-2 font-light text-center text-xs leading-5 text-gray-500">
-            The Privacy Stack is built and maintained by{" "}
-            <a href="https://bocoup.com" className="underline">
-              Bocoup
-            </a>
-            , and is based on the notes app that comes with the{" "}
-            <a
-              href="https://github.com/remix-run/indie-stack"
-              className="underline"
-            >
-              Remix Indie Stack
-            </a>
-            .
-          </p>
-        </div>
-      </footer>
+      <NavigationSiteFooter />
     </div>
   );
 }
@@ -185,6 +170,19 @@ const features = [
       />
     ),
     icon: <EnvelopeIcon className="w-4" />,
+  },
+  {
+    name: "Light weight CMS",
+    description: `Local content management built into the database with a <a href="https://templates.tiptap.dev/">tiptap</a> editing experience.`,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img
+          src="/site/edit-page.png"
+          alt="screenshot of the page editing experience"
+        />
+      </BrowserMockup>
+    ),
+    icon: <DocumentTextIcon className="w-4" />,
   },
   {
     name: "Autocomplete search",
