@@ -17,6 +17,7 @@ import { Editor } from "~/components/editor";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { createPage, getPageBySlug, updatePage } from "~/models/page.server";
 import { requireUser, requireUserId } from "~/session.server";
+import { getDomain } from "~/utils";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   await requireUserId(request);
@@ -28,7 +29,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   if (!page && params.slug !== "new") {
     throw new Response("No page found", { status: 404 });
   }
-  return json({ page });
+  return json({ page, domain: getDomain() });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -95,86 +96,88 @@ export default function SiteSettingsEditPage() {
       className="space-y-4 h-full p-4"
     >
       <input type="hidden" name="id" value={data.page?.id} />
-      <div className="space-x-2">
-        <Button
-          variant="secondary"
-          disabled={navigation.state === "idle" ? false : true}
-        >
-          <Save className="w-5 mr-2" />
-          Save page
-        </Button>{" "}
-        {data.page ? (
-          <Link
-            to={`/p/${data.page?.slug}`}
-            target="new"
-            className={buttonVariants({ variant: "secondary" })}
+      <div className="gap-4 space-y-4 md:space-y-0 flex-row-reverse md:flex">
+        <div className="flex gap-2 w-full md:w-auto">
+          <Button
+            className="flex-1"
+            variant="secondary"
+            disabled={navigation.state === "idle" ? false : true}
           >
-            <ExternalLink className="w-5 mr-2" /> Preview
-          </Link>
-        ) : null}
-      </div>
+            <Save className="w-5 mr-2" />
+            Save page
+          </Button>{" "}
+          {data.page ? (
+            <Link
+              to={`/p/${data.page?.slug}`}
+              target="new"
+              className={buttonVariants({ variant: "secondary" })}
+            >
+              <ExternalLink className="w-5 mr-2" /> Preview
+            </Link>
+          ) : null}
+        </div>
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Title: </span>
-          <input
-            ref={titleRef}
-            defaultValue={data.page && data.page.title ? data.page.title : ""}
-            name="title"
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-            aria-invalid={fetcher.data?.errors?.title ? true : undefined}
-            aria-errormessage={
-              fetcher.data?.errors?.title ? "name-error" : undefined
-            }
-            onKeyUp={(e) => {
-              const target = e.target as HTMLInputElement;
-              const val = slugify(target.value.toLowerCase());
-              const slugShow = document.getElementById(
-                "slug-show",
-              ) as HTMLInputElement;
-
-              if (slugShow) {
-                slugShow.value = val;
+        <div className="flex-1">
+          <label className="flex w-full flex-col">
+            <span className="sr-only">Title: </span>
+            <input
+              ref={titleRef}
+              defaultValue={data.page && data.page.title ? data.page.title : ""}
+              name="title"
+              placeholder="Page Title"
+              className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
+              aria-invalid={fetcher.data?.errors?.title ? true : undefined}
+              aria-errormessage={
+                fetcher.data?.errors?.title ? "name-error" : undefined
               }
-              setSlug(val);
-            }}
-          />
-        </label>
+              onKeyUp={(e) => {
+                const target = e.target as HTMLInputElement;
+                const val = slugify(target.value.toLowerCase());
+                const slugShow = document.getElementById(
+                  "slug-show",
+                ) as HTMLInputElement;
 
-        {fetcher?.data?.errors?.title ? (
-          <div className="pt-1 text-red-700" id="name-error">
-            {fetcher.data?.errors?.title}
-          </div>
-        ) : null}
-      </div>
+                if (slugShow) {
+                  slugShow.value = val;
+                }
+                setSlug(val);
+              }}
+            />
+          </label>
 
-      <div>
-        /p/
-        <label className="flex w-full flex-col gap-1">
-          <span className="sr-only">Slug: </span>
-          <input
-            ref={slugRef}
-            defaultValue={slug}
-            name="slug"
-            className="focus:outline-none block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 "
-            aria-invalid={fetcher.data?.errors?.slug ? true : undefined}
-            aria-errormessage={
-              fetcher.data?.errors?.slug ? "name-error" : undefined
-            }
-            id="slug-show"
-            onKeyUp={(e) => {
-              const target = e.target as HTMLInputElement;
-              const val = slugify(target.value.toLowerCase());
-              target.value = val;
-              setSlug(val);
-            }}
-          />
-        </label>
-        {fetcher?.data?.errors?.slug ? (
-          <div className="pt-1 text-red-700" id="name-error">
-            {fetcher.data?.errors?.slug}
-          </div>
-        ) : null}
+          {fetcher?.data?.errors?.title ? (
+            <div className="pt-1 text-red-700" id="name-error">
+              {fetcher.data?.errors?.title}
+            </div>
+          ) : null}
+
+          <label className="flex w-full text-gray-400 mt-1 text-sm">
+            <span className="sr-only">Slug: </span>
+            {data.domain}/p/
+            <input
+              ref={slugRef}
+              defaultValue={slug}
+              name="slug"
+              className="focus:outline-none inline border-0 p-0 text-gray-400"
+              aria-invalid={fetcher.data?.errors?.slug ? true : undefined}
+              aria-errormessage={
+                fetcher.data?.errors?.slug ? "name-error" : undefined
+              }
+              id="slug-show"
+              onKeyUp={(e) => {
+                const target = e.target as HTMLInputElement;
+                const val = slugify(target.value.toLowerCase());
+                target.value = val;
+                setSlug(val);
+              }}
+            />
+          </label>
+          {fetcher?.data?.errors?.slug ? (
+            <div className="pt-1 text-red-700" id="name-error">
+              {fetcher.data?.errors?.slug}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div>
