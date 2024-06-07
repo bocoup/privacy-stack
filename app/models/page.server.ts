@@ -1,3 +1,5 @@
+import xss from "xss";
+
 import { prisma } from "~/db.server";
 
 export async function createPage({
@@ -13,7 +15,7 @@ export async function createPage({
     data: {
       title,
       slug,
-      body,
+      body: xss(body),
     },
   });
 }
@@ -55,7 +57,7 @@ export async function updatePage({
     data: {
       title,
       slug,
-      body,
+      body: xss(body),
     },
   });
 }
