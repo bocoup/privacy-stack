@@ -1,6 +1,6 @@
+import { Page, Site } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
 import { type ClassValue, clsx } from "clsx";
-import { Home, Notebook } from "lucide-react";
 import { useMemo } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -56,6 +56,27 @@ function isUser(user: unknown): user is UserWithRelations {
   );
 }
 
+function isSettings(settings: unknown): settings is Site {
+  return (
+    settings != null &&
+    typeof settings === "object" &&
+    "name" in settings &&
+    typeof settings.name === "string" &&
+    "lede" in settings &&
+    typeof settings.lede === "string" &&
+    "tagline" in settings &&
+    typeof settings.tagline === "string" &&
+    "logo" in settings &&
+    typeof settings.logo === "string" &&
+    "logoDescription" in settings &&
+    typeof settings.logoDescription === "string"
+  );
+}
+
+function isPages(pages: unknown): pages is Page[] {
+  return pages != null && Array.isArray(pages);
+}
+
 export function useOptionalUser(): UserWithRelations | undefined {
   const data = useMatchesData("root");
   if (!data || !isUser(data.user)) {
@@ -72,6 +93,22 @@ export function useUser(): UserWithRelations {
     );
   }
   return maybeUser;
+}
+
+export function useSettings(): Site | undefined {
+  const data = useMatchesData("root");
+  if (!data || !isSettings(data.settings)) {
+    return undefined;
+  }
+  return data.settings;
+}
+
+export function usePages(): Page[] | undefined {
+  const data = useMatchesData("root");
+  if (!data || !isPages(data.pages)) {
+    return undefined;
+  }
+  return data.pages;
 }
 
 export function validateEmail(email: unknown): email is string {
@@ -160,20 +197,6 @@ export function isDark(color: string) {
     return true;
   }
 }
-
-export const dashboardNavigation = [
-  { label: "Dashboard", to: "/app/dashboard", icon: Home },
-  { label: "Notes", to: "/app/dashboard/notes", icon: Notebook },
-];
-export const settingsNavigation = [
-  { label: "Profile", to: "/app/settings/profile" },
-  { label: "Data", to: "/app/settings/data" },
-];
-
-export const staticNavigation = [
-  { label: "Privacy", to: "/privacy" },
-  { label: "About", to: "/about" },
-];
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
