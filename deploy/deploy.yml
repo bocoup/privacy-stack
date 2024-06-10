@@ -3,7 +3,7 @@
   remote_user: deploy
   tasks:
     - name: Copy app files to server
-      copy:
+      synchronize:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
       loop: "{{ deploy_files }}"
