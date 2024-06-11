@@ -13,7 +13,7 @@ export function sendMail({
 }) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
   const msg = {
-    from: "boaz@bocoup.com",
+    from: "privacy-stack@bocoup.com",
     to,
     subject,
     text,
