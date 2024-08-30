@@ -17,7 +17,7 @@
 
     - name: Run migrations
       shell:
-        cmd: "source /home/deploy/.nvm/nvm.sh && nvm exec default npx prisma migrate deploy"
+        cmd: "source /home/deploy/.nvm/nvm.sh && nvm exec default npx prisma migrate deploy && nvm exec default npx prisma generate"
         chdir: /home/{{ domain }}
       args:
         executable: /bin/bash
