@@ -174,7 +174,7 @@ const features = [
   },
   {
     name: "Advanced form validation",
-    description: `Form validation examples with <a href="https://zod.dev/">Zod</a> and <a href="https://conform.guide/">Conform</a>.`,
+    description: `Form validation examples using <a class="underline" href="https://zod.dev/">Zod</a> and <a class="underline" href="https://conform.guide/">Conform</a>.`,
     icon: <FormInputIcon className="w-4" />,
   },
   {
