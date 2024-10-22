@@ -1,3 +1,5 @@
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import {
   json,
@@ -13,13 +15,17 @@ import {
   useActionData,
   useRouteError,
 } from "@remix-run/react";
-import { useEffect, useRef } from "react";
 
+import { InputConform } from "~/components/conform/input";
+import { TextareaConform } from "~/components/conform/text-area";
+import { Field, FieldError } from "~/components/field";
 import ImageUpload from "~/components/image-upload";
 import { Button } from "~/components/ui/button";
-import { getSiteSettings, updateSiteSettings } from "~/models/site.server";
+import { Label } from "~/components/ui/label";
+import { getSiteSettings, upsertSiteSettings } from "~/models/site.server";
 import { requireUser, requireUserId } from "~/session.server";
-import { useSettings } from "~/utils";
+import { useSettings, useUser } from "~/utils";
+import { schema } from "~/validators/validate.site";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await requireUserId(request);
@@ -30,72 +36,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   await requireUser(request);
   const formData = await request.clone().formData();
-  const id = formData.get("id")?.toString();
-  const name = formData.get("name")?.toString();
-  const lede = formData.get("lede")?.toString();
-  const tagline = formData.get("tagline")?.toString();
-  if (typeof id !== "string" || id.length === 0) {
-    return json(
-      {
-        errors: {
-          id: "id is required",
-          lede: null,
-          name: null,
-          tagline: null,
-          logoDescription: null,
-        },
-      },
-      { status: 400 },
-    );
-  }
-
-  if (typeof lede !== "string" || lede.length === 0) {
-    return json(
-      {
-        errors: {
-          lede: "lede is required",
-          name: null,
-          tagline: null,
-          id: null,
-          logoDescription: null,
-        },
-      },
-      { status: 400 },
-    );
-  }
-
-  if (typeof name !== "string" || name.length === 0) {
-    return json(
-      {
-        errors: {
-          name: "name is required",
-          lede: null,
-          tagline: null,
-          id: null,
-          logoDescription: null,
-        },
-      },
-      { status: 400 },
-    );
-  }
-
-  if (typeof tagline !== "string" || tagline.length === 0) {
-    return json(
-      {
-        errors: {
-          tagline: "tagline is required",
-          lede: null,
-          name: null,
-          id: null,
-          logoDescription: null,
-        },
-      },
-      { status: 400 },
-    );
-  }
-
-  const logoDescription =
-    formData.get("logoDescription")?.toString() || undefined;
 
   const logo = formData.get("image");
   if (logo instanceof File) {
@@ -111,67 +51,55 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         unstable_createMemoryUploadHandler(),
       ),
     );
-
-    if (
-      logo.size > 0 &&
-      (typeof logoDescription !== "string" || logoDescription.length === 0)
-    ) {
-      return json(
-        {
-          errors: {
-            name: null,
-            logoDescription: "Descriptions are required for images",
-            lede: null,
-            tagline: null,
-          },
-        },
-        { status: 400 },
-      );
-    }
   }
 
-  await updateSiteSettings({
-    id,
-    name,
-    lede,
-    tagline,
+  const submission = await parseWithZod(formData, {
+    schema: schema,
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  await upsertSiteSettings({
+    ...submission.value,
     logo:
       logo instanceof File && logo.size > 0
         ? `/media/logo/${logo.name}`
         : undefined,
-    logoDescription,
   });
-
   return redirect(`/app/dashboard/site-settings`);
 };
 
 export default function SiteSettingsEditPage() {
   const settings = useSettings();
+  const user = useUser();
   const actionData = useActionData<typeof action>();
-  const nameRef = useRef<HTMLInputElement>(null);
-  const ledeRef = useRef<HTMLTextAreaElement>(null);
-  const taglineRef = useRef<HTMLInputElement>(null);
-  const logoDescriptionRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (actionData?.errors?.name) {
-      nameRef.current?.focus();
-    } else if (actionData?.errors?.lede) {
-      ledeRef.current?.focus();
-    } else if (actionData?.errors?.tagline) {
-      taglineRef.current?.focus();
-    } else if (actionData?.errors?.logoDescription) {
-      logoDescriptionRef.current?.focus();
-    }
-  }, [actionData]);
+  const [form, fields] = useForm({
+    shouldValidate: "onSubmit",
+    lastResult: actionData,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
+  });
 
   return (
     <Form
-      encType="multipart/form-data"
       method="post"
+      encType="multipart/form-data"
+      id={form.id}
+      onSubmit={form.onSubmit}
       className="space-y-4 h-full p-4"
     >
-      <input type="hidden" name="id" value={settings?.id} />
+      <input
+        type="hidden"
+        name="id"
+        value={settings?.id ? settings?.id : "new"}
+      />
+      <input type="hidden" name="userId" value={user.id} />
+
       <div>
         <ImageUpload
           image={settings?.logo || ""}
@@ -179,98 +107,79 @@ export default function SiteSettingsEditPage() {
         />
       </div>
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Image Description: </span>
-          <input
-            ref={logoDescriptionRef}
-            defaultValue={
-              settings && settings.logoDescription
-                ? settings.logoDescription
-                : ""
-            }
-            name="logoDescription"
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-            aria-invalid={
-              actionData?.errors?.logoDescription ? true : undefined
-            }
-            aria-errormessage={
-              actionData?.errors?.logoDescription ? "name-error" : undefined
-            }
-          />
-        </label>
-
-        {actionData?.errors?.logoDescription ? (
-          <div className="pt-1 text-red-700" id="name-error">
-            {actionData?.errors?.logoDescription}
+      <Field>
+        <Label htmlFor={fields.logoDescription.id}>Image Description:</Label>
+        <InputConform
+          defaultValue={
+            settings && settings.logoDescription ? settings.logoDescription : ""
+          }
+          meta={fields.logoDescription}
+          type="text"
+          name="logoDescription"
+          aria-invalid={fields.logoDescription.errors ? true : undefined}
+          aria-errormessage={
+            fields.logoDescription.errors ? "logoDescription-error" : undefined
+          }
+        />
+        {fields.logoDescription.errors ? (
+          <div id="logoDescription-error">
+            <FieldError>{fields.logoDescription.errors}</FieldError>
           </div>
         ) : null}
-      </div>
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Name: </span>
-          <input
-            ref={nameRef}
-            defaultValue={settings && settings.name ? settings.name : ""}
-            name="name"
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-            aria-invalid={actionData?.errors?.name ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.name ? "name-error" : undefined
-            }
-          />
-        </label>
+      </Field>
 
-        {actionData?.errors?.name ? (
-          <div className="pt-1 text-red-700" id="name-error">
-            {actionData?.errors?.name}
+      <Field>
+        <Label htmlFor={fields.logoDescription.id}>Name:</Label>
+        <InputConform
+          defaultValue={settings && settings.name ? settings.name : ""}
+          meta={fields.name}
+          type="text"
+          name="name"
+          aria-invalid={fields.name.errors ? true : undefined}
+          aria-errormessage={fields.name.errors ? "name-error" : undefined}
+        />
+        {fields.name.errors ? (
+          <div id="title-error">
+            <FieldError>{fields.name.errors}</FieldError>
           </div>
         ) : null}
-      </div>
+      </Field>
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Tagline: </span>
-          <input
-            ref={nameRef}
-            defaultValue={settings && settings.tagline ? settings.tagline : ""}
-            name="tagline"
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-            aria-invalid={actionData?.errors?.name ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.tagline ? "tagline-error" : undefined
-            }
-          />
-        </label>
-
-        {actionData?.errors?.tagline ? (
-          <div className="pt-1 text-red-700" id="name-error">
-            {actionData?.errors?.tagline}
+      <Field>
+        <Label htmlFor={fields.tagline.id}>Tagline:</Label>
+        <InputConform
+          defaultValue={settings && settings.tagline ? settings.tagline : ""}
+          meta={fields.tagline}
+          type="text"
+          name="tagline"
+          aria-invalid={fields.tagline.errors ? true : undefined}
+          aria-errormessage={
+            fields.tagline.errors ? "tagline-error" : undefined
+          }
+        />
+        {fields.tagline.errors ? (
+          <div id="tagline-error">
+            <FieldError>{fields.tagline.errors}</FieldError>
           </div>
         ) : null}
-      </div>
+      </Field>
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>lede: </span>
-          <textarea
-            ref={ledeRef}
-            defaultValue={settings && settings.lede ? settings.lede : ""}
-            name="lede"
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-            aria-invalid={actionData?.errors?.lede ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.lede ? "name-error" : undefined
-            }
-          />
-        </label>
-
-        {actionData?.errors?.lede ? (
-          <div className="pt-1 text-red-700" id="name-error">
-            {actionData?.errors?.lede}
+      <Field>
+        <Label htmlFor={fields.lede.id}>Lede:</Label>
+        <TextareaConform
+          defaultValue={settings && settings.lede ? settings.lede : ""}
+          meta={fields.lede}
+          name="lede"
+          aria-invalid={fields.lede.errors ? true : undefined}
+          aria-errormessage={fields.lede.errors ? "lede-error" : undefined}
+        />
+        {fields.lede.errors ? (
+          <div id="lede-error">
+            <FieldError>{fields.lede.errors}</FieldError>
           </div>
         ) : null}
-      </div>
+      </Field>
+
       <Button type="submit">Save</Button>
     </Form>
   );

@@ -2,24 +2,6 @@ import xss from "xss";
 
 import { prisma } from "~/db.server";
 
-export async function createPage({
-  title,
-  slug,
-  body,
-}: {
-  title: string;
-  slug: string;
-  body: string;
-}) {
-  return await prisma.page.create({
-    data: {
-      title,
-      slug,
-      body: xss(body),
-    },
-  });
-}
-
 export function getPage({ id }: { id: string }) {
   return prisma.page.findFirst({
     where: {
@@ -39,22 +21,27 @@ export function getPages() {
   return prisma.page.findMany();
 }
 
-export async function updatePage({
+export async function upsertPage({
   id,
   title,
   slug,
   body,
 }: {
-  id: string;
+  id?: string;
   title: string;
   slug: string;
   body: string;
 }) {
-  return await prisma.page.update({
+  return await prisma.page.upsert({
     where: {
       id,
     },
-    data: {
+    create: {
+      title,
+      slug,
+      body: xss(body),
+    },
+    update: {
       title,
       slug,
       body: xss(body),

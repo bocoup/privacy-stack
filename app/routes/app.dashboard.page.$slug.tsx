@@ -1,23 +1,30 @@
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
+  Form,
   Link,
   isRouteErrorResponse,
-  useFetcher,
+  useActionData,
   useLoaderData,
   useNavigation,
   useRouteError,
 } from "@remix-run/react";
 import { ExternalLink, Save } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import slugify from "slugify";
 import invariant from "tiny-invariant";
 
+import { InputConform } from "~/components/conform/input";
 import { Editor } from "~/components/editor";
+import { Field, FieldError } from "~/components/field";
 import { Button, buttonVariants } from "~/components/ui/button";
-import { createPage, getPageBySlug, updatePage } from "~/models/page.server";
+import { Label } from "~/components/ui/label";
+import { getPageBySlug, upsertPage } from "~/models/page.server";
 import { requireUser, requireUserId } from "~/session.server";
 import { getDomain } from "~/utils";
+import { createSchema } from "~/validators/validate.page";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   await requireUserId(request);
@@ -32,70 +39,58 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   return json({ page, domain: getDomain() });
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ params, request }: ActionFunctionArgs) => {
   await requireUser(request);
   const formData = await request.clone().formData();
-  const id = formData.get("id")?.toString();
-  const slug = formData.get("slug")?.toString();
-  const title = formData.get("title")?.toString();
-  const body = formData.get("body")?.toString();
 
-  if (typeof slug !== "string" || slug.length === 0) {
-    return json(
-      { errors: { slug: "slug is required", title: null } },
-      { status: 400 },
-    );
+  const submission = await parseWithZod(formData, {
+    schema: createSchema({
+      async isSlugUnique(slug) {
+        const maybePage = await getPageBySlug({ slug });
+        if (maybePage && maybePage.slug !== params.slug) {
+          return false;
+        }
+        return true;
+      },
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
   }
 
-  if (typeof title !== "string" || title.length === 0) {
-    return json(
-      { errors: { title: "title is required", slug: null } },
-      { status: 400 },
-    );
-  }
+  const page = await upsertPage(submission.value);
 
-  if (typeof id !== "string" || id.length === 0) {
-    createPage({
-      slug,
-      title,
-      body: body || "",
-    });
-  } else {
-    updatePage({
-      id,
-      slug,
-      title,
-      body: body || "",
-    });
-  }
-
-  return redirect(`/app/dashboard/page/${slug}`);
+  return redirect(`/app/dashboard/page/${page.slug}`);
 };
 
 export default function SiteSettingsEditPage() {
   const navigation = useNavigation();
 
-  const data = useLoaderData<typeof loader>();
-  const fetcher = useFetcher<typeof action>();
-  const titleRef = useRef<HTMLInputElement>(null);
+  const { page, domain } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const slugRef = useRef<HTMLInputElement>(null);
-  const [slug, setSlug] = useState(data.page?.slug);
+  const [slug, setSlug] = useState(page?.slug);
 
-  useEffect(() => {
-    if (fetcher.data?.errors?.title) {
-      titleRef.current?.focus();
-    } else if (fetcher.data?.errors?.slug) {
-      slugRef.current?.focus();
-    }
-  }, [fetcher.data]);
+  const [form, fields] = useForm({
+    shouldValidate: "onSubmit",
+    lastResult: actionData,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: createSchema() });
+    },
+  });
 
   return (
-    <fetcher.Form
+    <Form
       method="post"
       encType="multipart/form-data"
-      className="space-y-4 h-full p-4"
+      id={form.id}
+      onSubmit={form.onSubmit}
+      className="space-y-6"
     >
-      <input type="hidden" name="id" value={data.page?.id} />
+      <input type="hidden" name="id" value={page?.id ? page.id : "new"} />
+
       <div className="gap-4 space-y-4 md:space-y-0 flex-row-reverse md:flex">
         <div className="flex gap-2 w-full md:w-auto">
           <Button
@@ -106,9 +101,9 @@ export default function SiteSettingsEditPage() {
             <Save className="w-5 mr-2" />
             Save page
           </Button>{" "}
-          {data.page ? (
+          {page ? (
             <Link
-              to={`/p/${data.page?.slug}`}
+              to={`/p/${page?.slug}`}
               target="new"
               className={buttonVariants({ variant: "secondary" })}
             >
@@ -118,17 +113,16 @@ export default function SiteSettingsEditPage() {
         </div>
 
         <div className="flex-1">
-          <label className="flex w-full flex-col">
-            <span className="sr-only">Title: </span>
-            <input
-              ref={titleRef}
-              defaultValue={data.page && data.page.title ? data.page.title : ""}
+          <Field>
+            <Label htmlFor={fields.title.id}>Title:</Label>
+            <InputConform
+              defaultValue={page && page.title ? page.title : ""}
+              meta={fields.imageDescription}
+              type="text"
               name="title"
-              placeholder="Page Title"
-              className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-              aria-invalid={fetcher.data?.errors?.title ? true : undefined}
+              aria-invalid={fields.title.errors ? true : undefined}
               aria-errormessage={
-                fetcher.data?.errors?.title ? "name-error" : undefined
+                fields.title.errors ? "title-error" : undefined
               }
               onKeyUp={(e) => {
                 const target = e.target as HTMLInputElement;
@@ -143,25 +137,25 @@ export default function SiteSettingsEditPage() {
                 setSlug(val);
               }}
             />
-          </label>
-
-          {fetcher?.data?.errors?.title ? (
-            <div className="pt-1 text-red-700" id="name-error">
-              {fetcher.data?.errors?.title}
-            </div>
-          ) : null}
+            {fields.title.errors ? (
+              <div id="title-error">
+                <FieldError>{fields.title.errors}</FieldError>
+              </div>
+            ) : null}
+          </Field>
 
           <label className="flex w-full text-gray-400 mt-1 text-sm">
             <span className="sr-only">Slug: </span>
-            {data.domain}/p/
+            {domain}/p/
             <input
               ref={slugRef}
               defaultValue={slug}
               name="slug"
               className="focus:outline-none inline border-0 p-0 text-gray-400"
-              aria-invalid={fetcher.data?.errors?.slug ? true : undefined}
+              type="text"
+              aria-invalid={fields.slug.errors ? true : undefined}
               aria-errormessage={
-                fetcher.data?.errors?.slug ? "name-error" : undefined
+                fields.imageDescription.errors ? "slug-error" : undefined
               }
               id="slug-show"
               onKeyUp={(e) => {
@@ -172,18 +166,21 @@ export default function SiteSettingsEditPage() {
               }}
             />
           </label>
-          {fetcher?.data?.errors?.slug ? (
-            <div className="pt-1 text-red-700" id="name-error">
-              {fetcher.data?.errors?.slug}
+          {fields.slug.errors ? (
+            <div id="slug-error" className="pt-1 text-red-700">
+              <FieldError>{fields.slug.errors}</FieldError>
             </div>
           ) : null}
         </div>
       </div>
 
-      <div>
-        <Editor content={data.page?.body ? data.page?.body : ""} />
-      </div>
-    </fetcher.Form>
+      <Editor content={page?.body ? page?.body : ""} />
+      {fields.body.errors ? (
+        <div id="slug-error" className="pt-1 text-red-700">
+          <FieldError>{fields.body.errors}</FieldError>
+        </div>
+      ) : null}
+    </Form>
   );
 }
 

@@ -4,11 +4,11 @@ import { prisma } from "~/db.server";
 
 interface NoteProps {
   id: Note["id"] | undefined;
-  name: Note["name"];
-  body: Note["body"] | undefined;
-  image: Note["image"] | undefined;
-  imageDescription: Note["imageDescription"] | undefined;
   userId: User["id"];
+  name: Note["name"];
+  body?: Note["body"] | undefined;
+  image?: Note["image"] | undefined;
+  imageDescription?: Note["imageDescription"] | undefined;
 }
 
 export function getNotes(userId: string) {
@@ -27,25 +27,7 @@ export function getNote({ id }: Pick<Note, "id">) {
   });
 }
 
-export async function createNote({
-  name,
-  body,
-  image,
-  imageDescription,
-  userId,
-}: NoteProps) {
-  return prisma.note.create({
-    data: {
-      name,
-      body,
-      image,
-      imageDescription,
-      userId,
-    },
-  });
-}
-
-export async function updateNote({
+export async function upsertNote({
   id,
   name,
   body,
@@ -53,11 +35,18 @@ export async function updateNote({
   imageDescription,
   userId,
 }: NoteProps) {
-  return await prisma.note.update({
+  return await prisma.note.upsert({
     where: {
       id,
     },
-    data: {
+    update: {
+      name,
+      body,
+      image,
+      imageDescription,
+      userId,
+    },
+    create: {
       name,
       body,
       image,

@@ -1,37 +1,42 @@
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import { useEffect, useRef } from "react";
 
+import { InputConform } from "~/components/conform/input";
+import { Field, FieldError } from "~/components/field";
 import { Button } from "~/components/ui/button";
+import { Label } from "~/components/ui/label";
 import { sendMail } from "~/email.server";
 import { getUserByEmail, newToken } from "~/models/user.server";
-import { getDomain, validateEmail } from "~/utils";
+import { getDomain } from "~/utils";
+import { createSchema } from "~/validators/validate.forgot";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const email = formData.get("email");
+  let userId = "";
+  const submission = await parseWithZod(formData, {
+    schema: createSchema({
+      async emailExists(email) {
+        const maybeUser = await getUserByEmail(email);
+        if (!maybeUser) {
+          return false;
+        }
+        userId = maybeUser.id;
+        return true;
+      },
+    }),
+    async: true,
+  });
 
-  if (!validateEmail(email)) {
-    return json(
-      { errors: { email: "Email is invalid", password: null }, success: null },
-      { status: 400 },
-    );
+  if (submission.status !== "success") {
+    return submission.reply();
   }
 
-  const user = await getUserByEmail(email);
-
-  if (!user) {
-    return json(
-      { errors: { email: "Invalid email", password: null }, success: null },
-      { status: 400 },
-    );
-  }
-
-  const userWithNewToken = await newToken({ userId: user.id });
+  const userWithNewToken = await newToken({ userId });
 
   await sendMail({
-    to: user.email,
+    to: userWithNewToken.email,
     subject: "Notes App password reset",
     text: `Here is your password reset link: ${getDomain()}/reset/${
       userWithNewToken.token
@@ -41,54 +46,52 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }'>password reset link</a>. If you did not do this, please ignore this email..`,
   });
 
-  return json(
-    { errors: null, success: "Reset email sent. You can close this page." },
-    { status: 200 },
-  );
+  return {};
 };
 
 export const meta: MetaFunction = () => [{ title: "Forgot Password" }];
 
 export default function LoginPage() {
   const actionData = useActionData<typeof action>();
-  const emailRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (actionData?.errors?.email) {
-      emailRef.current?.focus();
-    }
-  }, [actionData]);
+  const [form, fields] = useForm({
+    shouldValidate: "onSubmit",
+    lastResult: actionData,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: createSchema() });
+    },
+  });
 
   return (
     <div className="flex h-screen flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
-        {actionData?.success ? (
-          <p className="text-center">{actionData.success}</p>
+        {actionData && !fields.email.errors ? (
+          <p className="text-center">
+            Reset email sent. You can close this page.
+          </p>
         ) : (
-          <Form method="post" className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium">
-                Email address
-              </label>
-              <div className="mt-1">
-                <input
-                  ref={emailRef}
-                  id="email"
-                  required
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  aria-invalid={actionData?.errors?.email ? true : undefined}
-                  aria-describedby="email-error"
-                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-                />
-                {actionData?.errors?.email ? (
-                  <div className="pt-1 text-red-700" id="email-error">
-                    {actionData.errors.email}
-                  </div>
-                ) : null}
-              </div>
-            </div>
+          <Form
+            method="post"
+            id={form.id}
+            onSubmit={form.onSubmit}
+            className="space-y-6"
+          >
+            <Field>
+              <Label htmlFor={fields.email.id}>Email</Label>
+              <InputConform
+                meta={fields.email}
+                type="email"
+                name="email"
+                aria-invalid={fields.email.errors ? true : undefined}
+                aria-errormessage={
+                  fields.email.errors ? "email-error" : undefined
+                }
+              />
+              {fields.email.errors ? (
+                <div id="email-error">
+                  <FieldError>{fields.email.errors}</FieldError>
+                </div>
+              ) : null}
+            </Field>
 
             <Button type="submit" className="w-full">
               Send reset link

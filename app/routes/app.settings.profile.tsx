@@ -1,7 +1,10 @@
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   json,
+  redirect,
   unstable_composeUploadHandlers,
   unstable_createFileUploadHandler,
   unstable_createMemoryUploadHandler,
@@ -14,15 +17,18 @@ import {
   useActionData,
   useRouteError,
 } from "@remix-run/react";
-import { useEffect, useRef } from "react";
 
+import { InputConform } from "~/components/conform/input";
+import { Field, FieldError } from "~/components/field";
 import ImageUpload from "~/components/image-upload";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Checkbox } from "~/components/ui/checkbox";
+import { Label } from "~/components/ui/label";
 import { updateProfile } from "~/models/user.server";
 import { requireUser, requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
+import { schema } from "~/validators/validate.profile";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await requireUserId(request);
@@ -32,14 +38,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const user = await requireUser(request);
   const formData = await request.clone().formData();
-  const doNotSell = formData.get("doNotSell")?.toString() === "on";
 
-  const visualAvatarDescription =
-    formData.get("visualAvatarDescription")?.toString() || undefined;
-
-  const imageFormField = formData.get("image");
-
-  if (imageFormField instanceof File) {
+  const visualAvatar = formData.get("image");
+  if (visualAvatar instanceof File) {
     await unstable_parseMultipartFormData(
       request,
       unstable_composeUploadHandlers(
@@ -52,58 +53,47 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         unstable_createMemoryUploadHandler(),
       ),
     );
+  }
 
-    if (
-      imageFormField.size > 0 &&
-      (typeof visualAvatarDescription !== "string" ||
-        visualAvatarDescription.length === 0)
-    ) {
-      return json(
-        {
-          success: null,
-          errors: {
-            visualAvatarDescription:
-              "Image descriptions are required for images",
-          },
-        },
-        { status: 400 },
-      );
-    }
+  const submission = await parseWithZod(formData, {
+    schema: schema,
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
   }
 
   await updateProfile({
-    id: user.id,
-    email: user.email,
+    ...submission.value,
     visualAvatar:
-      imageFormField instanceof File && imageFormField.size > 0
-        ? `/media/${user.id}/${imageFormField.name}`
+      visualAvatar instanceof File && visualAvatar.size > 0
+        ? `/public/media/${user.id}`
         : undefined,
-    visualAvatarDescription,
-    doNotSell,
   });
-
-  return json(
-    {
-      success: "Saved",
-      errors: null,
-    },
-    { status: 200 },
-  );
+  return redirect(`/app/settings/profile`);
 };
 
 export default function DataPage() {
   const user = useUser();
   const actionData = useActionData<typeof action>();
-  const visualAvatarDescriptionRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (actionData && actionData.errors?.visualAvatarDescription) {
-      visualAvatarDescriptionRef.current?.focus();
-    }
-  }, [actionData]);
+  const [form, fields] = useForm({
+    shouldValidate: "onSubmit",
+    lastResult: actionData,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
+  });
 
   return (
-    <Form method="post" encType="multipart/form-data" className="space-y-6 p-4">
+    <Form
+      method="post"
+      encType="multipart/form-data"
+      id={form.id}
+      onSubmit={form.onSubmit}
+      className="space-y-6 p-4"
+    >
       <h2 className="font-bold text-2xl mb-2">Profile</h2>
       <div className="space-y-2">
         <h3 className="font-bold text-lg">Your Avatar</h3>
@@ -113,31 +103,36 @@ export default function DataPage() {
             imageDescription={user.visualAvatarDescription || ""}
           />
 
-          <div>
-            <label className="flex w-full flex-col gap-1">
-              <span>Avatar Description: </span>
-              <input
-                ref={visualAvatarDescriptionRef}
-                defaultValue={user.visualAvatarDescription || ""}
-                name="visualAvatarDescription"
-                className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-                aria-invalid={
-                  actionData?.errors?.visualAvatarDescription ? true : undefined
-                }
-                aria-errormessage={
-                  actionData?.errors?.visualAvatarDescription
-                    ? "name-error"
-                    : undefined
-                }
-              />
-            </label>
+          <input type="hidden" name="id" value={user.id ? user.id : "new"} />
 
-            {actionData?.errors?.visualAvatarDescription ? (
-              <div className="pt-1 text-red-700" id="name-error">
-                {actionData?.errors?.visualAvatarDescription}
+          <Field>
+            <Label htmlFor={fields.visualAvatarDescription.id}>
+              Image Description:
+            </Label>
+            <InputConform
+              defaultValue={
+                user && user.visualAvatarDescription
+                  ? user.visualAvatarDescription
+                  : ""
+              }
+              meta={fields.visualAvatarDescription}
+              type="text"
+              name="visualAvatarDescription"
+              aria-invalid={
+                fields.visualAvatarDescription.errors ? true : undefined
+              }
+              aria-errormessage={
+                fields.visualAvatarDescription.errors
+                  ? "visualAvatarDescription-error"
+                  : undefined
+              }
+            />
+            {fields.visualAvatarDescription.errors ? (
+              <div id="visualAvatarDescription-error">
+                <FieldError>{fields.visualAvatarDescription.errors}</FieldError>
               </div>
             ) : null}
-          </div>
+          </Field>
         </Card>
       </div>
       <div className="space-y-2">
@@ -158,9 +153,12 @@ export default function DataPage() {
           <p>Update your do not sell preferences here</p>
           <div className="flex items-center space-x-2">
             <Checkbox
-              id="doNotSell"
               name="doNotSell"
-              defaultChecked={user.doNotSell}
+              defaultChecked={user && user.doNotSell ? user.doNotSell : false}
+              aria-invalid={fields.doNotSell.errors ? true : undefined}
+              aria-errormessage={
+                fields.doNotSell.errors ? "doNotSell-error" : undefined
+              }
             />
             <label
               htmlFor="doNotSell"
@@ -168,6 +166,11 @@ export default function DataPage() {
             >
               Do not sell my data
             </label>
+            {fields.visualAvatarDescription.errors ? (
+              <div id="doNotSell-error">
+                <FieldError>{fields.doNotSell.errors}</FieldError>
+              </div>
+            ) : null}
           </div>
         </Card>{" "}
       </div>

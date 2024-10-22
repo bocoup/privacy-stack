@@ -1,3 +1,5 @@
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import {
   json,
@@ -8,19 +10,24 @@ import {
   unstable_parseMultipartFormData,
 } from "@remix-run/node";
 import {
+  Form,
   isRouteErrorResponse,
-  useFetcher,
+  useActionData,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 
+import { InputConform } from "~/components/conform/input";
+import { TextareaConform } from "~/components/conform/text-area";
+import { Field, FieldError } from "~/components/field";
 import ImageUpload from "~/components/image-upload";
 import { Button } from "~/components/ui/button";
-import { createNote, getNote, updateNote } from "~/models/note.server";
+import { Label } from "~/components/ui/label";
+import { getNote, upsertNote } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
-import { timeFromNow } from "~/utils";
+import { timeFromNow, useUser } from "~/utils";
+import { schema } from "~/validators/validate.note";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   await requireUserId(request);
@@ -35,20 +42,9 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   return json({ note });
 };
 
-export const action = async ({ params, request }: ActionFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
   const formData = await request.clone().formData();
-  const name = formData.get("name")?.toString();
-  const body = formData.get("body")?.toString();
-  const imageDescription =
-    formData.get("imageDescription")?.toString() || undefined;
-
-  if (typeof name !== "string" || name.length === 0) {
-    return json(
-      { errors: { name: "Name is required", imageDescription: null } },
-      { status: 400 },
-    );
-  }
 
   const imageFormField = formData.get("image");
   if (imageFormField instanceof File) {
@@ -64,158 +60,137 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
         unstable_createMemoryUploadHandler(),
       ),
     );
-
-    if (
-      imageFormField.size > 0 &&
-      (typeof imageDescription !== "string" || imageDescription.length === 0)
-    ) {
-      return json(
-        {
-          errors: {
-            name: null,
-            imageDescription: "Image descriptions are required for images",
-          },
-        },
-        { status: 400 },
-      );
-    }
   }
 
-  invariant(params.noteId, "noteId required");
-  invariant(name, "name required");
+  const submission = await parseWithZod(formData, {
+    schema: schema,
+    async: true,
+  });
 
-  const data = {
-    id: params.noteId,
-    name,
-    body,
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  await upsertNote({
+    ...submission.value,
     image:
       imageFormField instanceof File && imageFormField.size > 0
         ? `/media/${userId}/${imageFormField.name}`
         : undefined,
-    imageDescription,
-    userId,
-  };
-
-  if (params.noteId === "new") {
-    await createNote(data);
-  } else {
-    await updateNote(data);
-  }
+  });
 
   return redirect(`/app/dashboard/notes`);
 };
 
 export default function NoteEditPage() {
-  const data = useLoaderData<typeof loader>();
-  const fetcher = useFetcher<typeof action>();
-  const nameRef = useRef<HTMLInputElement>(null);
-  const imageDescriptionRef = useRef<HTMLInputElement>(null);
+  const { note } = useLoaderData<typeof loader>();
+  const user = useUser();
+  const actionData = useActionData<typeof action>();
 
-  useEffect(() => {
-    if (fetcher.data?.errors?.name) {
-      nameRef.current?.focus();
-    } else if (fetcher.data?.errors?.imageDescription) {
-      imageDescriptionRef.current?.focus();
-    }
-  }, [fetcher.data]);
+  const [form, fields] = useForm({
+    lastResult: actionData,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
+    shouldRevalidate: "onSubmit",
+  });
 
   return (
-    <fetcher.Form
+    <Form
       method="post"
       encType="multipart/form-data"
-      className="space-y-4 h-full p-4"
+      id={form.id}
+      onSubmit={form.onSubmit}
+      className="space-y-6"
     >
       <div>
         <h2 className="font-bold text-xl flex">
-          {data.note?.image ? (
+          {note?.image ? (
             <img
-              alt={data.note.imageDescription || ""}
-              src={data.note.image}
+              alt={note.imageDescription || ""}
+              src={note.image}
               className="rounded w-10 h-10"
             />
           ) : null}
 
-          {data.note ? `Edit ${data.note.name}` : "New note"}
+          {note ? `Edit ${note.name}` : "New note"}
         </h2>
-        {data.note ? (
+        {note ? (
           <p className="text-sm text-slate-500">
-            Created {timeFromNow(data.note?.createdAt)} and last updated{" "}
-            {timeFromNow(data.note?.updatedAt)}
+            Created {timeFromNow(note?.createdAt)} and last updated{" "}
+            {timeFromNow(note?.updatedAt)}
           </p>
         ) : null}
       </div>
 
       <div>
         <ImageUpload
-          image={data.note?.image || ""}
-          imageDescription={data.note?.imageDescription || ""}
+          image={note?.image || ""}
+          imageDescription={note?.imageDescription || ""}
         />
       </div>
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Image Description: </span>
-          <input
-            ref={imageDescriptionRef}
-            defaultValue={
-              data.note && data.note.imageDescription
-                ? data.note.imageDescription
-                : ""
-            }
-            name="imageDescription"
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-            aria-invalid={
-              fetcher.data?.errors?.imageDescription ? true : undefined
-            }
-            aria-errormessage={
-              fetcher.data?.errors?.imageDescription ? "name-error" : undefined
-            }
-          />
-        </label>
+      <input type="hidden" name="id" value={note ? note.id : "new"} />
+      <input type="hidden" name="userId" value={user.id} />
 
-        {fetcher?.data?.errors?.imageDescription ? (
-          <div className="pt-1 text-red-700" id="name-error">
-            {fetcher.data?.errors?.imageDescription}
+      <Field>
+        <Label htmlFor={fields.imageDescription.id}>Image Description:</Label>
+        <InputConform
+          defaultValue={
+            note && note.imageDescription ? note.imageDescription : ""
+          }
+          meta={fields.imageDescription}
+          type="text"
+          name="imageDescription"
+          aria-invalid={fields.imageDescription.errors ? true : undefined}
+          aria-errormessage={
+            fields.imageDescription.errors
+              ? "imageDescription-error"
+              : undefined
+          }
+        />
+        {fields.imageDescription.errors ? (
+          <div id="imageDescription-error">
+            <FieldError>{fields.imageDescription.errors}</FieldError>
           </div>
         ) : null}
-      </div>
+      </Field>
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Name: </span>
-          <input
-            ref={nameRef}
-            defaultValue={data.note ? data.note.name : ""}
-            name="name"
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-            aria-invalid={fetcher.data?.errors?.name ? true : undefined}
-            aria-errormessage={
-              fetcher.data?.errors?.name ? "name-error" : undefined
-            }
-          />
-        </label>
-
-        {fetcher?.data?.errors?.name ? (
-          <div className="pt-1 text-red-700" id="name-error">
-            {fetcher.data?.errors?.name}
+      <Field>
+        <Label htmlFor={fields.name.id}>Name:</Label>
+        <InputConform
+          defaultValue={note && note.name ? note.name : ""}
+          meta={fields.name}
+          type="text"
+          name="name"
+          aria-invalid={fields.name.errors ? true : undefined}
+          aria-errormessage={fields.name.errors ? "error" : undefined}
+        />
+        {fields.name.errors ? (
+          <div id="name-error">
+            <FieldError>{fields.name.errors}</FieldError>
           </div>
         ) : null}
-      </div>
+      </Field>
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Body: </span>
-          <textarea
-            defaultValue={data.note && data.note.body ? data.note.body : ""}
-            name="body"
-            rows={8}
-            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6"
-          />
-        </label>
-      </div>
+      <Field>
+        <Label htmlFor={fields.name.id}>Body:</Label>
+        <TextareaConform
+          defaultValue={note && note.body ? note.body : ""}
+          meta={fields.body}
+          name="body"
+          aria-invalid={fields.body.errors ? true : undefined}
+          aria-errormessage={fields.body.errors ? "error" : undefined}
+        />
+        {fields.body.errors ? (
+          <div id="body-error">
+            <FieldError>{fields.body.errors}</FieldError>
+          </div>
+        ) : null}
+      </Field>
 
       <Button type="submit">Save</Button>
-    </fetcher.Form>
+    </Form>
   );
 }
 

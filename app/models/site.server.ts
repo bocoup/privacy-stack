@@ -1,10 +1,10 @@
 import { prisma } from "~/db.server";
 
-export function getSiteSettings() {
+export async function getSiteSettings() {
   return prisma.site.findFirst();
 }
 
-export async function updateSiteSettings({
+export async function upsertSiteSettings({
   id,
   name,
   tagline,
@@ -12,18 +12,25 @@ export async function updateSiteSettings({
   logo,
   logoDescription,
 }: {
-  id: string;
+  id?: string;
   name: string;
   tagline: string;
   lede: string;
-  logo: string | undefined;
-  logoDescription: string | undefined;
+  logo?: string;
+  logoDescription?: string;
 }) {
-  return await prisma.site.update({
+  return await prisma.site.upsert({
     where: {
       id,
     },
-    data: {
+    update: {
+      name,
+      tagline,
+      lede,
+      logo,
+      logoDescription,
+    },
+    create: {
       name,
       tagline,
       lede,

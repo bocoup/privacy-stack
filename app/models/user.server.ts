@@ -153,10 +153,9 @@ export async function updateProfile({
   visualAvatarDescription,
 }: {
   id: string;
-  email: string;
   doNotSell: boolean;
-  visualAvatar: string | undefined;
-  visualAvatarDescription: string | undefined;
+  visualAvatar?: string;
+  visualAvatarDescription?: string;
 }) {
   return await prisma.user.update({
     where: {

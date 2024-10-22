@@ -1,3 +1,5 @@
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -5,14 +7,15 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import { useEffect, useRef } from "react";
 
+import { InputConform } from "~/components/conform/input";
+import { Field, FieldError } from "~/components/field";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { verifyLogin } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
-import { safeRedirect, validateEmail } from "~/utils";
+import { safeRedirect } from "~/utils";
+import { createSchema } from "~/validators/validate.login";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
@@ -22,46 +25,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
   const remember = formData.get("remember");
+  let userId = "";
+  const submission = await parseWithZod(formData, {
+    schema: createSchema({
+      async verifyLogin(email, password) {
+        const user = await verifyLogin(email, password);
+        if (!user) {
+          return false;
+        }
+        userId = user.id;
+        return true;
+      },
+    }),
+    async: true,
+  });
 
-  if (!validateEmail(email)) {
-    return json(
-      { errors: { email: "Email is invalid", password: null } },
-      { status: 400 },
-    );
-  }
-
-  if (typeof password !== "string" || password.length === 0) {
-    return json(
-      { errors: { email: null, password: "Password is required" } },
-      { status: 400 },
-    );
-  }
-
-  if (password.length < 8) {
-    return json(
-      { errors: { email: null, password: "Password is too short" } },
-      { status: 400 },
-    );
-  }
-
-  const user = await verifyLogin(email, password);
-
-  if (!user) {
-    return json(
-      { errors: { email: "Invalid email or password", password: null } },
-      { status: 400 },
-    );
+  if (submission.status !== "success") {
+    return submission.reply();
   }
 
   return createUserSession({
     redirectTo,
     remember: remember === "on" ? true : false,
     request,
-    userId: user.id,
+    userId,
   });
 };
 
@@ -71,16 +60,14 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/app/dashboard/notes";
   const actionData = useActionData<typeof action>();
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (actionData?.errors?.email) {
-      emailRef.current?.focus();
-    } else if (actionData?.errors?.password) {
-      passwordRef.current?.focus();
-    }
-  }, [actionData]);
+  const [form, fields] = useForm({
+    shouldValidate: "onSubmit",
+    lastResult: actionData,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: createSchema() });
+    },
+  });
 
   return (
     <div className="mx-auto grid w-[350px] gap-6">
@@ -90,32 +77,31 @@ export default function LoginPage() {
           Enter your email below to login to your account.
         </p>
       </div>
-      <Form method="post" className="grid gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
-          <div>
-            <Input
-              ref={emailRef}
-              id="email"
-              required
-              name="email"
-              type="email"
-              autoComplete="email"
-              aria-invalid={actionData?.errors?.email ? true : undefined}
-              aria-describedby="email-error"
-              className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-            />
-            {actionData?.errors?.email ? (
-              <div className="pt-1 text-red-700" id="email-error">
-                {actionData.errors.email}
-              </div>
-            ) : null}
-          </div>
-        </div>
+      <Form
+        method="post"
+        id={form.id}
+        onSubmit={form.onSubmit}
+        className="grid gap-4"
+      >
+        <Field>
+          <Label htmlFor={fields.email.id}>Email</Label>
+          <InputConform
+            meta={fields.email}
+            type="email"
+            name="email"
+            aria-invalid={fields.email.errors ? true : undefined}
+            aria-errormessage={fields.email.errors ? "email-error" : undefined}
+          />
+          {fields.email.errors ? (
+            <div id="email-error">
+              <FieldError>{fields.email.errors}</FieldError>
+            </div>
+          ) : null}
+        </Field>
 
-        <div className="grid gap-2">
+        <Field>
           <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor={fields.password.id}>Password</Label>
             <Link
               className="ml-auto inline-block text-sm underline"
               to="/forgot"
@@ -123,25 +109,21 @@ export default function LoginPage() {
               Forgot password?
             </Link>
           </div>
-          <div>
-            <Input
-              id="password"
-              ref={passwordRef}
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              aria-invalid={actionData?.errors?.password ? true : undefined}
-              aria-describedby="password-error"
-              className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-              required
-            />
-            {actionData?.errors?.password ? (
-              <div className="pt-1 text-red-700" id="password-error">
-                {actionData.errors.password}
-              </div>
-            ) : null}
-          </div>
-        </div>
+          <InputConform
+            meta={fields.password}
+            type="password"
+            name="password"
+            aria-invalid={fields.password.errors ? true : undefined}
+            aria-errormessage={
+              fields.password.errors ? "password-error" : undefined
+            }
+          />
+          {fields.password.errors ? (
+            <div id="email-error">
+              <FieldError>{fields.password.errors}</FieldError>
+            </div>
+          ) : null}
+        </Field>
 
         <div className="flex justify-center items-center">
           <input

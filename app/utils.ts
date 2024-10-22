@@ -65,11 +65,7 @@ function isSettings(settings: unknown): settings is Site {
     "lede" in settings &&
     typeof settings.lede === "string" &&
     "tagline" in settings &&
-    typeof settings.tagline === "string" &&
-    "logo" in settings &&
-    typeof settings.logo === "string" &&
-    "logoDescription" in settings &&
-    typeof settings.logoDescription === "string"
+    typeof settings.tagline === "string"
   );
 }
 
