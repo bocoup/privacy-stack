@@ -71,7 +71,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ? `/public/media/${user.id}`
         : undefined,
   });
-  return redirect(`/app/settings/profile`);
+  return redirect(`/app/profile`);
 };
 
 export default function DataPage() {
@@ -144,7 +144,7 @@ export default function DataPage() {
         <Card className="p-4 space-y-4">
           <p>
             Check out the{" "}
-            <Link to="/app/settings/data" className="underline">
+            <Link to="/app/data" className="underline">
               the data section
             </Link>{" "}
             for access to all your data, and the ability to delete it.

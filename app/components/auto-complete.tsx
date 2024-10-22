@@ -23,7 +23,7 @@ export function Autocomplete({
 
   return (
     <Downshift
-      onChange={(selection) => navigate(`/app/dashboard/note/${selection.id}`)}
+      onChange={(selection) => navigate(`/app/note/${selection.id}`)}
       itemToString={(item) => (item ? item.name : "")}
       scrollIntoView={(node: HTMLElement) => {
         if (node) {
@@ -95,7 +95,7 @@ export function Autocomplete({
                               selectedItem === item ? "bold" : "normal",
                           },
                         })}
-                        to={`/app/dashboard/note/${item.id}`}
+                        to={`/app/note/${item.id}`}
                         className="result p-2 flex w-[98%] mx-auto justify-between  hover:bg-slate-100"
                       >
                         {item.name}

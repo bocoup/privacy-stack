@@ -47,11 +47,11 @@ export default function Index() {
           {user ? (
             <div className="flex gap-4">
               <Button asChild variant="secondary">
-                <Link to="/app/settings/data">Check your data</Link>
+                <Link to="/app/data">Check your data</Link>
               </Button>
 
               <Button asChild>
-                <Link to="/app/dashboard/notes">Create a note</Link>
+                <Link to="/app/notes">Create a note</Link>
               </Button>
             </div>
           ) : (

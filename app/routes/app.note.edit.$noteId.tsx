@@ -79,7 +79,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         : undefined,
   });
 
-  return redirect(`/app/dashboard/notes`);
+  return redirect(`/app/notes`);
 };
 
 export default function NoteEditPage() {

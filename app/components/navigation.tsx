@@ -1,5 +1,13 @@
 import { Link } from "@remix-run/react";
-import { Home, Notebook, PanelTop, Settings2, Menu } from "lucide-react";
+import {
+  Home,
+  Notebook,
+  PanelTop,
+  Settings2,
+  Menu,
+  User2Icon,
+  DatabaseIcon,
+} from "lucide-react";
 
 import { Logo } from "~/components/logo";
 import {
@@ -153,16 +161,14 @@ export function NavigationSiteFooter() {
 }
 
 export const dashboardNavigation = [
-  { label: "Dashboard", to: "/app/dashboard", icon: Home },
-  { label: "Notes", to: "/app/dashboard/notes", icon: Notebook },
-  { label: "Pages", to: "/app/dashboard/pages", icon: PanelTop },
+  { label: "Dashboard", to: "/app", icon: Home },
+  { label: "Notes", to: "/app/notes", icon: Notebook },
+  { label: "Pages", to: "/app/pages", icon: PanelTop },
   {
     label: "Site Settings",
-    to: "/app/dashboard/site-settings",
+    to: "/app/site-settings",
     icon: Settings2,
   },
-];
-export const settingsNavigation = [
-  { label: "Profile", to: "/app/settings/profile" },
-  { label: "Data", to: "/app/settings/data" },
+  { label: "Profile", to: "/app/profile", icon: User2Icon },
+  { label: "Data", to: "/app/data", icon: DatabaseIcon },
 ];

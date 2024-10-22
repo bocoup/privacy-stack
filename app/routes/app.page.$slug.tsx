@@ -62,7 +62,7 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
   const page = await upsertPage(submission.value);
 
-  return redirect(`/app/dashboard/page/${page.slug}`);
+  return redirect(`/app/page/${page.slug}`);
 };
 
 export default function SiteSettingsEditPage() {

@@ -18,16 +18,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function NotePage() {
   return (
-    <div className="flex-1 flex flex-col space-y-4">
-      <div className="flex flex-1 items-center justify-center">
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h2 className="text-2xl font-bold tracking-tight">Welcome</h2>
+    <div className="flex-1 flex flex-col justify-items-stretch">
+      <h2 className="mt-10 text-2xl font-bold text-center tracking-tight">
+        Welcome
+      </h2>
 
-          <Button asChild variant="link">
-            <Link to="/app/dashboard/notes">Go to notes</Link>
-          </Button>
-        </div>
-      </div>
+      <Button asChild variant="link">
+        <Link to="/app/notes">Go to notes</Link>
+      </Button>
     </div>
   );
 }

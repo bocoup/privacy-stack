@@ -25,7 +25,7 @@ import { createSchema } from "~/validators/validate.reset";
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const loggedInUser = await getUserId(request);
   if (loggedInUser) {
-    return redirect("/app/dashboard/notes");
+    return redirect("/app/notes");
   }
 
   const userByToken = await getUserByToken(params.token);
@@ -65,7 +65,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   return createUserSession({
-    redirectTo: "/app/dashboard/notes",
+    redirectTo: "/app/notes",
     remember: false,
     request,
     userId,

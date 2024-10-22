@@ -58,7 +58,7 @@ export const meta: MetaFunction = () => [{ title: "Login" }];
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/app/dashboard/notes";
+  const redirectTo = searchParams.get("redirectTo") || "/app/notes";
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({

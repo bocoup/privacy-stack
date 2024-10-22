@@ -49,7 +49,7 @@ export default function NotePage() {
           <DropdownMenuContent className="w-56 shadow rounded p-2 bg-white z-50">
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <Link to="/app/dashboard/note/edit/new" className="p-4 w-full">
+                <Link to="/app/note/edit/new" className="p-4 w-full">
                   Add note
                 </Link>
               </DropdownMenuItem>
@@ -63,7 +63,7 @@ export default function NotePage() {
             {data.notes.map((note) => (
               <li key={note.id}>
                 <Link
-                  to={`/app/dashboard/note/${note.id}`}
+                  to={`/app/note/${note.id}`}
                   className="flex items-center justify-between w-full"
                 >
                   <div className="flex items-center">
@@ -99,7 +99,7 @@ export default function NotePage() {
               Start by adding a note.
             </p>
             <Button asChild>
-              <Link to="/app/dashboard/note/edit/new"> New note</Link>
+              <Link to="/app/note/edit/new"> New note</Link>
             </Button>
           </div>
         </div>

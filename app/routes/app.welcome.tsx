@@ -34,7 +34,7 @@ export default function Welcome() {
           adding a favorite action.
         </p>
         <Button asChild className="w-full">
-          <Link to="/app/dashboard/note/edit/new">Create a note</Link>
+          <Link to="/app/note/edit/new">Create a note</Link>
         </Button>
 
         <p>
@@ -52,9 +52,9 @@ export default function Welcome() {
         </Button>
         <p className="text-xs italic text-center">
           (you can do this later from the{" "}
-          <Link to="/app/settings/data" className="underline">
+          <Link to="/app/data" className="underline">
             data page
-          </Link>{" "}
+          </Link>
           as well)
         </p>
         <Transition.Root show={open} as={Fragment}>

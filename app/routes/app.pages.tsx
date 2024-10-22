@@ -56,7 +56,7 @@ export default function PagePage() {
           variant="ghost"
           aria-description="Click to add items to form"
         >
-          <Link to="/app/dashboard/page/new" className="p-4">
+          <Link to="/app/page/new" className="p-4">
             <span className="sr-only">Add page</span>
             <CirclePlus />
           </Link>
@@ -68,7 +68,7 @@ export default function PagePage() {
             {data.pages.map((page) => (
               <li key={page.id} className="flex">
                 <Link
-                  to={`/app/dashboard/page/${page.slug}`}
+                  to={`/app/page/${page.slug}`}
                   className="flex items-center justify-between w-full"
                 >
                   <div className="flex items-center">
@@ -96,7 +96,7 @@ export default function PagePage() {
                     <DropdownMenuGroup>
                       <DropdownMenuItem className="gap-2 rounded-none">
                         <Link
-                          to={`/app/dashboard/page/${page.slug}`}
+                          to={`/app/page/${page.slug}`}
                           className="w-full flex gap-2 items-center"
                         >
                           <Edit className="mr-2 h-4 w-4" />
@@ -133,7 +133,7 @@ export default function PagePage() {
               Start by adding a page.
             </p>
             <Button asChild>
-              <Link to="/app/dashboard/page/new"> New page</Link>
+              <Link to="/app/page/new"> New page</Link>
             </Button>
           </div>
         </div>

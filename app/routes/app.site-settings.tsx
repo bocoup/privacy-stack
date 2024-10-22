@@ -69,7 +69,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ? `/media/logo/${logo.name}`
         : undefined,
   });
-  return redirect(`/app/dashboard/site-settings`);
+  return redirect(`/app/site-settings`);
 };
 
 export default function SiteSettingsEditPage() {
@@ -91,7 +91,7 @@ export default function SiteSettingsEditPage() {
       encType="multipart/form-data"
       id={form.id}
       onSubmit={form.onSubmit}
-      className="space-y-4 h-full p-4"
+      className="space-y-4 h-full"
     >
       <input
         type="hidden"

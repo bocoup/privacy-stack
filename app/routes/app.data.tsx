@@ -84,7 +84,7 @@ export default function DataPage() {
   const [deletionType, setDeletionType] = useState("most");
 
   return (
-    <div className="space-y-6 p-4">
+    <div className="space-y-6">
       <h2 className="font-bold text-2xl mb-2">Data Checkin</h2>
       <p>
         Thank you for checking in on the data about you that is stored in this

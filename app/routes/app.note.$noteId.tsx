@@ -54,7 +54,7 @@ export default function NoteEditPage() {
       </div>
       <p>{data.note?.body}</p>
       <Button asChild>
-        <Link to={`/app/dashboard/note/edit/${data.note?.id}`}>Edit</Link>
+        <Link to={`/app/note/edit/${data.note?.id}`}>Edit</Link>
       </Button>
     </div>
   );
