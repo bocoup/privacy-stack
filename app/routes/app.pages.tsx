@@ -49,21 +49,23 @@ export default function PagePage() {
   const data = useLoaderData<typeof loader>();
   return (
     <div className="flex-1 flex flex-col space-y-4">
-      <div className="flex shrink items-center justify-items-start">
-        <h1 className="text-lg font-semibold md:text-2xl w-full">All Pages</h1>
-        <Button
-          asChild
-          variant="ghost"
-          aria-description="Click to add items to form"
-        >
-          <Link to="/app/page/new" className="p-4">
-            <span className="sr-only">Add page</span>
-            <CirclePlus />
-          </Link>
-        </Button>
-      </div>
       {data.pages.length ? (
         <ScrollArea>
+          <div className="flex shrink items-center justify-items-start">
+            <h1 className="text-lg font-semibold md:text-2xl w-full">
+              All Pages
+            </h1>
+            <Button
+              asChild
+              variant="ghost"
+              aria-description="Click to add items to form"
+            >
+              <Link to="/app/page/new" className="p-4">
+                <span className="sr-only">Add page</span>
+                <CirclePlus />
+              </Link>
+            </Button>
+          </div>{" "}
           <ul className="space-y-4 mb-8">
             {data.pages.map((page) => (
               <li key={page.id} className="flex">
@@ -90,7 +92,7 @@ export default function PagePage() {
                       <EllipsisVerticalIcon className="w-6" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-48">
+                  <DropdownMenuContent className="w-48 mr-2">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
@@ -124,12 +126,12 @@ export default function PagePage() {
           </ul>
         </ScrollArea>
       ) : (
-        <div className="flex flex-1 items-center justify-center rounded-lg shadow-sm">
+        <div className="flex flex-1 items-center justify-center mt-10">
           <div className="flex flex-col items-center gap-1 text-center">
             <h3 className="text-2xl font-bold tracking-tight">
               You have no pages
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mb-2">
               Start by adding a page.
             </p>
             <Button asChild>

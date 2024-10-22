@@ -114,7 +114,9 @@ export default function SiteSettingsEditPage() {
 
         <div className="flex-1">
           <Field>
-            <Label htmlFor={fields.title.id}>Title:</Label>
+            <Label htmlFor={fields.title.id} className="sr-only">
+              Title
+            </Label>
             <InputConform
               defaultValue={page && page.title ? page.title : ""}
               meta={fields.imageDescription}

@@ -1,8 +1,3 @@
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@radix-ui/react-dropdown-menu";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -12,13 +7,9 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
+import { CirclePlus } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuGroup,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { getNotes } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
@@ -38,27 +29,21 @@ export default function NotePage() {
   const data = useLoaderData<typeof loader>();
   return (
     <div className="flex-1 flex flex-col space-y-4">
-      <div className="flex shrink items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-2xl">All Notes</h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost">
-              <EllipsisVerticalIcon className="w-6" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 shadow rounded p-2 bg-white z-50">
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Link to="/app/note/edit/new" className="p-4 w-full">
-                  Add note
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
       {data.notes.length ? (
         <ScrollArea>
+          <div className="flex shrink items-center justify-between">
+            <h1 className="text-lg font-semibold md:text-2xl">All Notes</h1>
+            <Button
+              asChild
+              variant="ghost"
+              aria-description="Click to add items to form"
+            >
+              <Link to="/app/page/new" className="p-4">
+                <span className="sr-only">Add note</span>
+                <CirclePlus />
+              </Link>
+            </Button>
+          </div>
           <ul className="space-y-4 mb-8">
             {data.notes.map((note) => (
               <li key={note.id}>
@@ -90,12 +75,12 @@ export default function NotePage() {
           </ul>
         </ScrollArea>
       ) : (
-        <div className="flex flex-1 items-center justify-center rounded-lg shadow-sm">
+        <div className="flex flex-1 items-center justify-center mt-10">
           <div className="flex flex-col items-center gap-1 text-center">
             <h3 className="text-2xl font-bold tracking-tight">
               You have no notes
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mb-2">
               Start by adding a note.
             </p>
             <Button asChild>
