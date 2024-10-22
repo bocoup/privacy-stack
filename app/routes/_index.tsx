@@ -14,6 +14,7 @@ import {
 } from "@heroicons/react/20/solid";
 import type { MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
+import { FormInputIcon } from "lucide-react";
 
 import BrowserMockup from "~/components/browser-mockup";
 import { NavigationSite, NavigationSiteFooter } from "~/components/navigation";
@@ -172,8 +173,13 @@ const features = [
     icon: <EnvelopeIcon className="w-4" />,
   },
   {
+    name: "Advanced form validation",
+    description: `Form validation examples with <a href="https://zod.dev/">Zod</a> and <a href="https://conform.guide/">Conform</a>.`,
+    icon: <FormInputIcon className="w-4" />,
+  },
+  {
     name: "Light weight CMS",
-    description: `Local content management built into the database with a <a href="https://templates.tiptap.dev/">tiptap</a> editing experience.`,
+    description: `Local content management built into the database with a <a class="underline" href="https://templates.tiptap.dev/">tiptap</a> editing experience.`,
     screenshot: (
       <BrowserMockup className="md:w-1/2">
         <img

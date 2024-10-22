@@ -52,7 +52,7 @@ export function NavigationSite() {
               <li>
                 {user ? (
                   <Link
-                    to="/app/dashboard"
+                    to="/app"
                     className="text-sm leading-6 hover:text-gray-900"
                   >
                     Dashboard
@@ -101,7 +101,7 @@ export function NavigationSite() {
                 <div className="py-6">
                   {user ? (
                     <Link
-                      to="/app/dashboard"
+                      to="/app"
                       className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                     >
                       Dashboard
@@ -139,7 +139,7 @@ export function NavigationSiteFooter() {
             ))}
             <li>
               {user ? (
-                <Link to="/app/dashboard">Dashboard</Link>
+                <Link to="/app">Dashboard</Link>
               ) : (
                 <Link to="/auth/login">Log in</Link>
               )}

@@ -46,7 +46,7 @@ export default function Welcome() {
       {loaderData.success ? (
         <p>
           {loaderData.success}{" "}
-          <Link to="/app/dashboard" className="underline">
+          <Link to="/app" className="underline">
             Continue home
           </Link>
           .
